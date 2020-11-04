@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+C:/Users/adrian/Documents/PlatformIO/Projects/kitchen_timer/build/CMakeFiles/bootloader
+C:/Users/adrian/Documents/PlatformIO/Projects/kitchen_timer/build/CMakeFiles/bootloader.rule
+C:/Users/adrian/Documents/PlatformIO/Projects/kitchen_timer/build/CMakeFiles/bootloader-complete.rule
+C:/Users/adrian/Documents/PlatformIO/Projects/kitchen_timer/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+C:/Users/adrian/Documents/PlatformIO/Projects/kitchen_timer/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+C:/Users/adrian/Documents/PlatformIO/Projects/kitchen_timer/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+C:/Users/adrian/Documents/PlatformIO/Projects/kitchen_timer/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule
+C:/Users/adrian/Documents/PlatformIO/Projects/kitchen_timer/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+C:/Users/adrian/Documents/PlatformIO/Projects/kitchen_timer/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+C:/Users/adrian/Documents/PlatformIO/Projects/kitchen_timer/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
