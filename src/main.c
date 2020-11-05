@@ -30,7 +30,10 @@ void app_main()
     ESP_ERROR_CHECK(rotary_encoder_set_queue(&rotary_encoder_info, rotary_encoder_event_queue));
 
     ESP_LOGI(TAG, "Start button");
-    button_info_t button_info = {0};
+    button_info_t button_info = {
+        .inverted=false,
+        .long_press_time_ms=1000
+    };
 
     gpio_num_t gpio_arr[3] = {GPIO_NUM_27, GPIO_NUM_26, GPIO_NUM_NC};
     ESP_ERROR_CHECK(button_init(&button_info, gpio_arr));
@@ -56,23 +59,30 @@ void app_main()
         xQueueReceive(button_event_queue, ev, 100 / portTICK_PERIOD_MS);
         if (ev)
         {
-            if ((ev->pin == GPIO_NUM_27) && (ev->event == BUTTON_SHORT_PRESSED))
+            if ((ev->pin == GPIO_NUM_27) )
             {
-                ESP_LOGI(TAG, "27 short press");
+                if (ev->event == BUTTON_RISING_EDGE)
+                    ESP_LOGI(TAG, "27 rising edge");
+                else if (ev->event == BUTTON_FALLING_EDGE)
+                    ESP_LOGI(TAG, "27 short press falling edge");
+                else if (ev->event == BUTTON_LONG_PRESS)
+                    ESP_LOGI(TAG, "27 long press");
+                else if (ev->event == BUTTON_FALLING_EDGE_LONG)
+                    ESP_LOGI(TAG, "27 long press falling edge");
             }
-            if ((ev->pin == GPIO_NUM_27) && (ev->event == BUTTON_LONG_PRESSED))
+            else if ((ev->pin == GPIO_NUM_26) )
             {
-                ESP_LOGI(TAG, "27 long press");
-            }
-            if ((ev->pin == GPIO_NUM_26) && (ev->event == BUTTON_SHORT_PRESSED))
-            {
-                ESP_LOGI(TAG, "26 short press");
-            }
-            if ((ev->pin == GPIO_NUM_26) && (ev->event == BUTTON_LONG_PRESSED))
-            {
-                ESP_LOGI(TAG, "26 long press");
+                if (ev->event == BUTTON_RISING_EDGE)
+                    ESP_LOGI(TAG, "26 rising edge");
+                else if (ev->event == BUTTON_FALLING_EDGE)
+                    ESP_LOGI(TAG, "26 short press falling edge");
+                else if (ev->event == BUTTON_LONG_PRESS)
+                    ESP_LOGI(TAG, "26 long press");
+                else if (ev->event == BUTTON_FALLING_EDGE_LONG)
+                    ESP_LOGI(TAG, "26 long press falling edge");
             }
         }
+        free(ev);
     }
 
     ESP_ERROR_CHECK(rotary_encoder_uninit(&rotary_encoder_info));
