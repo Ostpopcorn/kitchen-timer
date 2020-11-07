@@ -4,3 +4,9 @@
 [submodule "components/esp32-rotary-encoder"]
 	path = components/esp32-rotary-encoder
 	url = https://github.com/DavidAntliff/esp32-rotary-encoder.git
+[submodule ".\\components\\esp32-LiquidCrystal"]
+	path = .\\components\\esp32-LiquidCrystal
+	url = git@github.com:Ostpopcorn/esp32-LiquidCrystal.git
+[submodule "components/esp32-LiquidCrystal"]
+	path = components/esp32-LiquidCrystal
+	url = git@github.com:Ostpopcorn/esp32-LiquidCrystal.git
