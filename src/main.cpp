@@ -5,11 +5,14 @@
 #include "esp_system.h"
 #include "esp_log.h"
 #include "driver/gpio.h"
+#include "driver/adc.h"
+
 
 #include <stdbool.h>
 
 #include "rotary_encoder.h"
 #include "button.h"
+#include "Sound.h"
 #include "LiquidCrystalGPIO.h"
 
 
@@ -51,10 +54,11 @@ extern "C" void app_main()
 
     // Rotary encoder init and set to half steps.
     rotary_encoder_info_t rotary_encoder_info = GENERATE_ROTARY_ENCODER_INFO_T;
-    rotary_encoder_init(&rotary_encoder_info, rot_enc_a_gpio, rot_enc_b_gpio);
+    rotary_encoder_init(&rotary_encoder_info, rot_enc_b_gpio, rot_enc_a_gpio);
     ESP_ERROR_CHECK(rotary_encoder_enable_half_steps(&rotary_encoder_info, true));  
     ESP_ERROR_CHECK(rotary_encoder_set_queue(&rotary_encoder_info, rotary_encoder_event_queue));
 
+    Sound sound{}; // Need to init this before the buttons in order to have btn_2 work since it uses DAC_2 pin
 
     // Button init 
     gpio_num_t btn_1 = GPIO_NUM_27;
@@ -81,25 +85,22 @@ extern "C" void app_main()
     gpio_num_t lcd_d6 = GPIO_NUM_17;
     gpio_num_t lcd_d7 = GPIO_NUM_16;
 
-    
-    ESP_LOGI(TAG,"create trans");vTaskDelay(1000 / portTICK_PERIOD_MS);
-    /*LcdTransportGPIO* transp = new LcdTransportGPIO (LcdTransport::bit_mode::FOUR_BIT
-                    ,lcd_rs,lcd_rw,lcd_en,
-                    lcd_d4,lcd_d5,lcd_d6,lcd_d7,
-                    GPIO_NUM_NC,GPIO_NUM_NC,GPIO_NUM_NC,GPIO_NUM_NC);
-      */              
-    ESP_LOGI(TAG,"init");vTaskDelay(1000 / portTICK_PERIOD_MS);
+            
     LiquidCrystalGPIO lcd(LiquidCrystal::bit_mode::FOUR_BIT 
                     ,lcd_rs,lcd_rw,lcd_en,
                     lcd_d4,lcd_d5,lcd_d6,lcd_d7,
                     GPIO_NUM_NC,GPIO_NUM_NC,GPIO_NUM_NC,GPIO_NUM_NC);
-    ESP_LOGI(TAG,"begin");vTaskDelay(1000 / portTICK_PERIOD_MS);
     lcd.begin(numCols, numRows);
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
     lcd.setCursor(0, 0);
     lcd.write('H');
+    lcd.setCursor(1,0);
     lcd.write('E');
-    lcd.noCursor();
+    lcd.setCursor(2, 0);
+    lcd.write('J');
     ESP_LOGI(TAG,"Setup done!");
+
+
     while (1)
     {
         button_event_t btn_ev = GENERATE_BUTTON_EVENT_T;
@@ -216,6 +217,7 @@ extern "C" void app_main()
             
         } 
         
+        vTaskDelay(1 / portTICK_PERIOD_MS);
     }
 
     ESP_ERROR_CHECK(rotary_encoder_uninit(&rotary_encoder_info));
