@@ -1,2 +1,39 @@
 #include "Screen.h"
 
+Screen::Screen(){
+
+}
+
+void Screen::set_backlight_gpio(gpio_num_t gpio){
+    backlight_led = gpio;
+    ledc_timer.speed_mode = LEDC_LOW_SPEED_MODE;           // timer mode
+    ledc_timer.duty_resolution = LEDC_TIMER_8_BIT; // resolution of PWM duty
+    ledc_timer.timer_num = LEDC_TIMER_1;            // timer index
+    ledc_timer.freq_hz = 5000;                      // frequency of PWM signal
+    ledc_timer.clk_cfg = LEDC_AUTO_CLK;              // Auto select the source clock
+    
+    ledc_timer_config(&ledc_timer);
+
+    ledc_channel.gpio_num   = gpio;
+    ledc_channel.speed_mode = ledc_timer.speed_mode;
+    ledc_channel.channel    = LEDC_CHANNEL_0;
+    ledc_channel.timer_sel  = ledc_timer.timer_num;
+    ledc_channel.duty       = 0;
+    ledc_channel.hpoint     = 0;
+
+    ledc_channel_config(&ledc_channel);
+
+    // Initialize fade service.
+    ledc_fade_func_install(0);
+
+}
+void Screen::set_fade_time(uint32_t new_fade_time){
+    fade_time = new_fade_time;
+}
+void Screen::fade_backlight_to(uint32_t value){
+    ledc_set_fade_with_time(ledc_channel.speed_mode,
+            ledc_channel.channel, value, fade_time);
+    ledc_fade_start(ledc_channel.speed_mode,
+            ledc_channel.channel, LEDC_FADE_NO_WAIT);
+
+}

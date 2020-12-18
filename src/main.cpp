@@ -13,6 +13,7 @@
 #include "rotary_encoder.h"
 #include "button.h"
 #include "Sound.h"
+#include "Screen.h"
 #include "LiquidCrystalGPIO.h"
 
 
@@ -58,8 +59,10 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(rotary_encoder_enable_half_steps(&rotary_encoder_info, true));  
     ESP_ERROR_CHECK(rotary_encoder_set_queue(&rotary_encoder_info, rotary_encoder_event_queue));
 
-    Sound sound{}; // Need to init this before the buttons in order to have btn_2 work since it uses DAC_2 pin
-
+    // Sound sound{};    // Need to init this before the buttons in order to have btn_2 work since it uses DAC_2 pin
+    Screen screen{};  // 
+    screen.set_backlight_gpio(lcd_dimmer);
+    screen.fade_backlight_to(0xff);
     // Button init 
     gpio_num_t btn_1 = GPIO_NUM_27;
     gpio_num_t btn_2 = GPIO_NUM_26;
@@ -112,18 +115,22 @@ extern "C" void app_main()
                 if (btn_ev.event == BUTTON_RISING_EDGE){
                     ESP_LOGI(TAG, "btn_1 rising edge");
                     lcd.write('R');
+                    screen.fade_backlight_to(0xff/2);
                 }
                 else if (btn_ev.event == BUTTON_FALLING_EDGE){
                     ESP_LOGI(TAG, "btn_1 short press falling edge");
                     lcd.write('F');
+                    screen.fade_backlight_to(0xff);
                 }
                 else if (btn_ev.event == BUTTON_LONG_PRESS){
                     ESP_LOGI(TAG, "btn_1 long press");
                     lcd.write('L');
+                    screen.fade_backlight_to(0xff/4);
                 }
                 else if (btn_ev.event == BUTTON_FALLING_EDGE_LONG){
                     ESP_LOGI(TAG, "btn_1 long press falling edge");
                     lcd.write('X');
+                    screen.fade_backlight_to(0xff);
                 }
             }
             else if ((btn_ev.pin == btn_2) )
