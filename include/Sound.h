@@ -1,5 +1,6 @@
 #include "driver/i2s.h"
 
+#define EXAMPLE_I2S_SAMPLE_BITS 16
 class Sound {
     /*
       Men om vi säger att den ska skicka 
@@ -9,7 +10,7 @@ class Sound {
         .mode =(i2s_mode_t) (I2S_MODE_MASTER | I2S_MODE_TX | I2S_MODE_DAC_BUILT_IN),
         .sample_rate = 44100,
         // Tror att inbyggda DAC endast har 8 bitar men skickar 16 för att den är kul eller nått...
-        .bits_per_sample = (i2s_bits_per_sample_t) 16, 
+        .bits_per_sample = (i2s_bits_per_sample_t) EXAMPLE_I2S_SAMPLE_BITS, 
         // Tänker mig att channel format är hur mycket den ska skicka. Så skillnaden mellan ALL_ och ONLY_
         // är att all säger att allt man ger blir _ och only bara den delen av bitarna.
         // Jag har bara en kanal så jag kör all_right

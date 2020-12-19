@@ -4,7 +4,6 @@
 #include "Sound.h"
 
 #define EXAMPLE_I2S_BUF_DEBUG 1
-#define EXAMPLE_I2S_SAMPLE_BITS 16
 
 void i2s_task(void * pv);
 
@@ -29,7 +28,12 @@ int example_i2s_dac_data_scale(uint8_t* d_buff, uint8_t* s_buff, uint32_t len)
         d_buff[j++] = s_buff[i];
     }
     return (len * 2);
-#else
+#elif (EXAMPLE_I2S_SAMPLE_BITS == 8)
+    for (int i = 0; i < len; i++) {
+        d_buff[j++] = s_buff[i];
+    }
+    return (len);
+#else 
     for (int i = 0; i < len; i++) {
         d_buff[j++] = 0;
         d_buff[j++] = 0;
@@ -68,7 +72,7 @@ void example_reset_play_mode(void)
  */
 void example_set_file_play_mode(void)
 {
-    i2s_set_clk(I2S_NUM_0, 16000, (i2s_bits_per_sample_t) 16, I2S_CHANNEL_MONO);
+    i2s_set_clk(I2S_NUM_0, 16000, (i2s_bits_per_sample_t) EXAMPLE_I2S_SAMPLE_BITS, I2S_CHANNEL_MONO);
 }
 // i2s_channel_t
 

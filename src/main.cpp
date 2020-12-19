@@ -59,7 +59,7 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(rotary_encoder_enable_half_steps(&rotary_encoder_info, true));  
     ESP_ERROR_CHECK(rotary_encoder_set_queue(&rotary_encoder_info, rotary_encoder_event_queue));
 
-    // Sound sound{};    // Need to init this before the buttons in order to have btn_2 work since it uses DAC_2 pin
+    Sound sound{};    // Need to init this before the buttons in order to have btn_2 work since it uses DAC_2 pin
     Screen screen{};  // 
     screen.set_backlight_gpio(lcd_dimmer);
     screen.fade_backlight_to(0xff);
