@@ -7,12 +7,20 @@
 #include "driver/periph_ctrl.h"
 #include "driver/timer.h"
 
+typedef struct {
+    timer_group_t timer_group;
+    timer_idx_t timer_idx;
+    uint64_t timer_counter_value;
+} timer_event_t;
+#define GENERAT_TIMER_EVENT_T {.timer_group = TIMER_GROUP_MAX, .timer_idx  = TIMER_MAX, .timer_counter_value = 0}
+
 class Timer{
     xQueueHandle queue_handle;
     timer_idx_t timer_idx = TIMER_0;
     void init();
 public:
     Timer();
+    xQueueHandle get_queue_handle();
     void set_alarm_value(double timer_interval_sec);
     void start();
 };

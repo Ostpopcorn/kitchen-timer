@@ -14,6 +14,7 @@
 #include "button.h"
 #include "Sound.h"
 #include "Screen.h"
+#include "Timer.h"
 #include "LiquidCrystalGPIO.h"
 
 
@@ -59,7 +60,7 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(rotary_encoder_enable_half_steps(&rotary_encoder_info, true));  
     ESP_ERROR_CHECK(rotary_encoder_set_queue(&rotary_encoder_info, rotary_encoder_event_queue));
 
-    Sound sound{};    // Need to init this before the buttons in order to have btn_2 work since it uses DAC_2 pin
+    //Sound sound{};    // Need to init this before the buttons in order to have btn_2 work since it uses DAC_2 pin
     Screen screen{};  // 
     screen.set_backlight_gpio(lcd_dimmer);
     screen.fade_backlight_to(0xff);
@@ -88,6 +89,9 @@ extern "C" void app_main()
     gpio_num_t lcd_d6 = GPIO_NUM_17;
     gpio_num_t lcd_d7 = GPIO_NUM_16;
 
+    Timer timer;
+    timer.set_alarm_value(5);
+    timer.start();
             
     LiquidCrystalGPIO lcd(LiquidCrystal::bit_mode::FOUR_BIT 
                     ,lcd_rs,lcd_rw,lcd_en,
@@ -104,10 +108,12 @@ extern "C" void app_main()
     ESP_LOGI(TAG,"Setup done!");
 
 
+    button_event_t btn_ev = GENERATE_BUTTON_EVENT_T;
+    rotary_encoder_event_t rot_ev = GENERAT_ROTARY_ENCODER_EVENT_T;
+    timer_event_t timer_event = GENERAT_TIMER_EVENT_T;
+    xQueueHandle timer_queue = timer.get_queue_handle();
     while (1)
     {
-        button_event_t btn_ev = GENERATE_BUTTON_EVENT_T;
-        rotary_encoder_event_t rot_ev = GENERAT_ROTARY_ENCODER_EVENT_T;
         while (xQueueReceive(button_event_queue, &(btn_ev),1) == pdPASS){
             if (btn_ev.pin == btn_1)
             {
@@ -224,7 +230,10 @@ extern "C" void app_main()
             
         } 
         
-        vTaskDelay(1 / portTICK_PERIOD_MS);
+        while (xQueueReceive(timer_queue, &timer_event,1) == pdPASS){
+            ESP_LOGI("H","Timer event");
+        }
+        vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 
     ESP_ERROR_CHECK(rotary_encoder_uninit(&rotary_encoder_info));
