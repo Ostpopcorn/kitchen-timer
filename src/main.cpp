@@ -17,8 +17,16 @@
 #include "Timer.h"
 #include "LiquidCrystalGPIO.h"
 
+#define TIMER_DIVIDER         16  //  Hardware timer clock divider
+#define TIMER_SCALE           (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
 
 #define TAG "MAIN"
+static void inline print_timer_counter(uint64_t counter_value)
+{
+    printf("Counter: 0x%08x%08x\n", (uint32_t) (counter_value >> 32),
+           (uint32_t) (counter_value));
+    printf("Time   : %.8f s\n", (double) counter_value / TIMER_SCALE);
+}
 
 extern "C" void app_main()
 {
@@ -231,7 +239,25 @@ extern "C" void app_main()
         } 
         
         while (xQueueReceive(timer_queue, &timer_event,1) == pdPASS){
-            ESP_LOGI("H","Timer event");
+            /* Print information that the timer reported an event */
+            if (timer_event.type == 1) {
+                printf("\n    Example timer without reload\n");
+            } else if (timer_event.type == 0) {
+                printf("\n    Example timer with auto reload\n");
+            } else {
+                printf("\n    UNKNOWN EVENT TYPE\n");
+            }
+            printf("Group[%d], timer[%d] alarm event\n", timer_event.timer_group, timer_event.timer_idx);
+
+            /* Print the timer values passed by event */
+            printf("------- EVENT TIME --------\n");
+            print_timer_counter(timer_event.timer_counter_value);
+
+            /* Print the timer values as visible by this task */
+            printf("-------- TASK TIME --------\n");
+            uint64_t task_counter_value;
+            timer_get_counter_value(timer_event.timer_group, timer_event.timer_idx, &task_counter_value);
+            print_timer_counter(task_counter_value);
         }
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
