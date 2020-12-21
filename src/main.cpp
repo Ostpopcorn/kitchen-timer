@@ -253,6 +253,7 @@ extern "C" void app_main()
             timer_get_counter_value(timer_event.timer_group, timer_event.timer_idx, &task_counter_value);
             print_timer_counter(task_counter_value);
         }
+        ESP_LOGI("H","%f",timer.get_remainder(TIMER_0));
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 

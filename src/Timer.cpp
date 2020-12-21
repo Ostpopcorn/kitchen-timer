@@ -1,11 +1,12 @@
 #include "Timer.h"
 
-#define TIMER_DIVIDER         16  //  Hardware timer clock divider
-#define TIMER_SCALE           (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
+#define TIMER_DIVIDER 16                             //  Hardware timer clock divider
+#define TIMER_SCALE (TIMER_BASE_CLK / TIMER_DIVIDER) // convert counter value to seconds
 
 // xQueueHandle queue_handle;
 
-typedef struct {
+typedef struct
+{
     timer_idx_t timer_id;
     xQueueHandle queue;
 } timer_isr_input_data_t;
@@ -14,7 +15,7 @@ void IRAM_ATTR timer_group0_isr(void *para)
 {
     timer_spinlock_take(TIMER_GROUP_0);
 
-    timer_isr_input_data_t* input_data = (timer_isr_input_data_t*) para;
+    timer_isr_input_data_t *input_data = (timer_isr_input_data_t *)para;
 
     timer_idx_t timer_idx = input_data->timer_id;
     /* Retrieve the interrupt status and the counter value
@@ -31,12 +32,14 @@ void IRAM_ATTR timer_group0_isr(void *para)
 
     /* Clear the interrupt
        and update the alarm time for the timer with without reload */
-    if (timer_intr & TIMER_INTR_T0) {
+    if (timer_intr & TIMER_INTR_T0)
+    {
         timer_group_clr_intr_status_in_isr(TIMER_GROUP_0, TIMER_0);
-        timer_counter_value += (uint64_t) (1 * TIMER_SCALE);
+        timer_counter_value += (uint64_t)(1 * TIMER_SCALE);
         timer_group_set_alarm_value_in_isr(TIMER_GROUP_0, timer_idx, timer_counter_value);
-    } else {
-
+    }
+    else
+    {
     }
 
     /* After the alarm has been triggered
@@ -48,13 +51,16 @@ void IRAM_ATTR timer_group0_isr(void *para)
     timer_spinlock_give(TIMER_GROUP_0);
 }
 
-Timer::Timer(){
+Timer::Timer()
+{
     init();
 }
 
-xQueueHandle Timer::get_queue_handle(){
+xQueueHandle Timer::get_queue_handle()
+{
     return this->queue_handle;
 }
+
 void Timer::init()
 {
     this->queue_handle = xQueueCreate(4, sizeof(timer_event_t));
@@ -69,8 +75,8 @@ void Timer::init()
     }; // default clock source is APB
     timer_init(TIMER_GROUP_0, timer_idx, &config);
     timer_set_counter_value(TIMER_GROUP_0, timer_idx, 0x00000000ULL);
-    
-    timer_isr_input_data_t* data_for_isr;
+
+    timer_isr_input_data_t *data_for_isr;
     data_for_isr = new timer_isr_input_data_t{
         .timer_id = this->timer_idx,
         .queue = this->queue_handle,
@@ -78,13 +84,29 @@ void Timer::init()
 
     timer_enable_intr(TIMER_GROUP_0, timer_idx);
     timer_isr_register(TIMER_GROUP_0, timer_idx, timer_group0_isr,
-                       (void *) data_for_isr, ESP_INTR_FLAG_IRAM, NULL);
+                       (void *)data_for_isr, ESP_INTR_FLAG_IRAM, NULL);
 }
 
-void Timer::set_alarm_value(double timer_interval_sec) {
+void Timer::set_alarm_value(double timer_interval_sec)
+{
     timer_set_alarm_value(TIMER_GROUP_0, timer_idx, timer_interval_sec * TIMER_SCALE);
 }
 
-void Timer::start(){
+void Timer::start()
+{
+
     timer_start(TIMER_GROUP_0, timer_idx);
+}
+
+double Timer::get_remainder(timer_idx_t timer_idx)
+{
+    uint64_t alarm_value{0};
+    uint64_t current_value{0};
+
+    timer_get_alarm_value(TIMER_GROUP_0, this->timer_idx, &alarm_value);
+    timer_get_counter_value(TIMER_GROUP_0, this->timer_idx, &current_value);
+
+    double curr{((double) current_value)/TIMER_SCALE };
+    double alarm{((double) alarm_value)/TIMER_SCALE };
+    return alarm - curr;
 }

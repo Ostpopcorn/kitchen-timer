@@ -26,6 +26,7 @@ public:
     xQueueHandle get_queue_handle();
     void set_alarm_value(double timer_interval_sec);
     void start();
+    double get_remainder(timer_idx_t timer_idx);
 };
 
 
