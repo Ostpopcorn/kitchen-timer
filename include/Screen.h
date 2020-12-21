@@ -3,6 +3,8 @@
 #include "LiquidCrystalGPIO.h"
 #include "driver/gpio.h"
 #include "driver/ledc.h"
+#include "Timer.h"
+#include "time.h"
 
 template<class T>
 class Screen{
@@ -23,10 +25,14 @@ private:
     
 public:
 
-    virtual ~Screen();
     Screen(LiquidCrystalGPIO* lcd);
     Screen(LiquidCrystalGPIO* lcd, gpio_num_t backlight_gpio);
+    virtual ~Screen();
     void set_lcd_object(LiquidCrystalGPIO* lcd);
+    // 
+    void update(Timer* timer = NULL);
+
+    // Backlight functions
     void set_backlight_gpio(gpio_num_t gpio);
     void set_fade_time(uint32_t new_fade_time);
     void fade_backlight_to(uint32_t value);

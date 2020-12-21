@@ -1,5 +1,7 @@
 #include "Screen.h"
 #include "freertos/task.h"
+#include "esp_log.h"
+#include "string.h"
 
 
 Screen<LiquidCrystalGPIO*>::Screen(LiquidCrystalGPIO* lcd){
@@ -10,6 +12,7 @@ Screen<LiquidCrystalGPIO*>::Screen(LiquidCrystalGPIO* lcd,gpio_num_t backlight_g
     set_lcd_object(lcd);
     set_backlight_gpio(backlight_gpio);
 }
+
 template<class T>
 Screen<T>::Screen(){
 
@@ -38,6 +41,28 @@ void Screen<LiquidCrystalGPIO*>::set_lcd_object(LiquidCrystalGPIO* lcd){
     lcd->write('E');
     lcd->setCursor(2, 0);
     lcd->write('J');
+}
+
+void Screen<LiquidCrystalGPIO*>::update(Timer* timer){
+    int start_pos_col = 6;
+    int start_pos_row = 0;
+    if (lcd == NULL){
+        ESP_LOGI("SCREEN","No lcd assigned");
+        return;
+    }
+    char display_string[16];
+    size_t print_len = sprintf(display_string,"%.1f",timer->get_remainder(TIMER_0));
+    for (size_t i = 0; i < print_len; i++)
+    {
+        lcd->setCursor(start_pos_col-i,start_pos_row);
+        lcd->write(display_string[print_len-1-i]);
+    }
+    for (size_t i = print_len; i < 7; i++)
+    {
+        lcd->setCursor(start_pos_col-i,start_pos_row);
+        lcd->write(' ');
+    }
+    
 }
 
 void Screen<LiquidCrystalGPIO*>::set_backlight_gpio(gpio_num_t gpio){

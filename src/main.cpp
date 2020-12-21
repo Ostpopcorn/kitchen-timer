@@ -93,8 +93,7 @@ extern "C" void app_main()
     screen.fade_backlight_to(0xff);
 
     Timer timer;
-    timer.set_alarm_value(5);
-    timer.start();
+    timer.set_alarm_value(200);
 
     // Button init 
     gpio_num_t btn_1 = GPIO_NUM_27;
@@ -146,6 +145,7 @@ extern "C" void app_main()
                 // lcd.setCursor(2, 1);
                 if (btn_ev.event == BUTTON_RISING_EDGE){
                     ESP_LOGI(TAG, "btn_2 rising edge");
+                    timer.start();
                     // lcd.write('R');
                 }
                 else if (btn_ev.event == BUTTON_FALLING_EDGE){
@@ -166,6 +166,8 @@ extern "C" void app_main()
                 // lcd.setCursor(3, 1);
                 if (btn_ev.event == BUTTON_RISING_EDGE){
                     ESP_LOGI(TAG, "btn_3 rising edge");
+                    
+                    timer.pause();
                     // lcd.write('R');
                 }
                 else if (btn_ev.event == BUTTON_FALLING_EDGE){
@@ -253,7 +255,8 @@ extern "C" void app_main()
             timer_get_counter_value(timer_event.timer_group, timer_event.timer_idx, &task_counter_value);
             print_timer_counter(task_counter_value);
         }
-        ESP_LOGI("H","%f",timer.get_remainder(TIMER_0));
+        //ESP_LOGI("H","%f",timer.get_remainder(TIMER_0));
+        screen.update(&timer);
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 

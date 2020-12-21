@@ -94,8 +94,12 @@ void Timer::set_alarm_value(double timer_interval_sec)
 
 void Timer::start()
 {
-
     timer_start(TIMER_GROUP_0, timer_idx);
+}
+
+void Timer::pause()
+{
+    timer_pause(TIMER_GROUP_0, timer_idx);
 }
 
 double Timer::get_remainder(timer_idx_t timer_idx)
