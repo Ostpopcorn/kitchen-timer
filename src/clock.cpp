@@ -36,34 +36,68 @@ void Clock::set_time(int h, int m, int s)
   second = s;
 }
 
-string Clock::to_string(bool format_24h) const
+string Clock::to_string(bool format_24h,char fill) const
 {
   ostringstream o_string_stream{};
+  bool has_larger{false};
   if (format_24h)
   {
-    o_string_stream << setw(2) << setfill('0') << hour;
+    if (hour>0){
+      o_string_stream << setw(2) << setfill(fill) << hour;
+      o_string_stream << ':';
+      has_larger = true;
+      fill = '0';
+    }else{
+      o_string_stream << setw(2) << setfill(fill) << ' ';
+      o_string_stream << ' ';
+    }
+
   }
   else
   {
     if (hour > 12)
     {
-      o_string_stream << setw(2) << setfill('0') << (hour - 12);
+      o_string_stream << setw(2) << setfill(fill) << (hour - 12);
     }
     else if (hour == 0)
     {
-      o_string_stream << setw(2) << setfill('0') << 12;
+      o_string_stream << setw(2) << setfill(fill) << 12;
     }
     else
     {
-      o_string_stream << setw(2) << setfill('0') << 12;
+      o_string_stream << setw(2) << setfill(fill) << 12;
     }
   }
 
-  o_string_stream << ':';
-  o_string_stream << setw(2) << setfill('0') << minute;
-  o_string_stream << ':';
-  o_string_stream << setw(2) << setfill('0') << second;
-
+  if(minute!=0){
+    o_string_stream << setw(2) << setfill(fill) << minute;
+    has_larger = true;
+    fill = '0';
+      o_string_stream << ':';
+  }else
+  {
+    if ( has_larger){
+      o_string_stream << setw(2) << setfill(fill) << '0';
+      o_string_stream << ':';
+    }else{
+      o_string_stream << setw(2) << setfill(fill) << ' ';
+      o_string_stream << ' ';
+    }
+  }
+  if(second!=0){
+    o_string_stream << setw(2) << setfill(fill) << second;
+    has_larger = true;
+    fill = '0';
+  }else
+  {
+    if ( has_larger){
+      o_string_stream << setw(2) << setfill(fill) << '0';
+    }else{
+      o_string_stream << setw(2) << setfill(fill) << '0';
+    }
+  }
+  
+  
   /*AM/PM eller inget*/
   if (!format_24h)
   {
@@ -78,8 +112,6 @@ string Clock::to_string(bool format_24h) const
   }
   string time_string{o_string_stream.str()};
   return time_string;
-  /*
-  */
 }
 
 void Clock::increment_time()
@@ -189,6 +221,10 @@ int Clock::get_second() const
 {
   return second;
 }
+int Clock::get_all_time_as_second() const{
+  return this->second + (60*this->minute) + (60*60*this->hour);
+}
+
 bool Clock::operator<(Clock const &rhs) const
 {
   // Jämför först timmar
@@ -248,33 +284,4 @@ bool Clock::operator>=(Clock const &rhs)const
 bool Clock::operator!=(Clock const &rhs)const
 {
   return !(*this == rhs);
-}
-
-std::ostream &operator<<(std::ostream &os, Clock const &rhs)
-{
-  os << rhs.to_string();
-  return os;
-}
-
-std::istream &operator>>(std::istream &i_string_stream, Clock &rhs)
-{
-  int h{};
-  int m{};
-  int s{};
-
-  i_string_stream >> h;
-  i_string_stream.get();
-  i_string_stream >> m;
-  i_string_stream.get();
-  i_string_stream >> s;
-  if (!i_string_stream)
-  {
-    i_string_stream.setstate(std::ios::failbit);
-  }
-  else
-  {
-    Clock temp = Clock{h,m,s};
-    rhs = temp;
-  }
-  return i_string_stream;
 }

@@ -16,11 +16,13 @@ public:
   Clock();
   Clock(int h, int m, int s);
 
-  std::string to_string(bool format_24h = true) const;
+  std::string to_string(bool format_24h = true,char fill = '0') const;
 
   int get_hour() const;
   int get_minute() const;
   int get_second() const;
+  int get_all_time_as_second() const;
+
   Clock operator=(Clock const & rhs) ;
   Clock operator+(int rhs) const;
   Clock operator-(int rhs) const;
@@ -38,9 +40,5 @@ public:
   bool operator>=(Clock const &rhs) const;
   bool operator!=(Clock const &rhs) const;
 };
-
-std::ostream &operator<<(std::ostream &os, Clock const &rhs);
-
-std::istream &operator>>(std::istream &os, Clock &rhs);
 
 #endif

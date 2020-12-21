@@ -92,6 +92,11 @@ void Timer::set_alarm_value(double timer_interval_sec)
     timer_set_alarm_value(TIMER_GROUP_0, timer_idx, timer_interval_sec * TIMER_SCALE);
 }
 
+void Timer::set_alarm_value(Clock clock)
+{
+    timer_set_alarm_value(TIMER_GROUP_0, timer_idx, clock.get_all_time_as_second() * TIMER_SCALE);
+}
+
 void Timer::start()
 {
     timer_start(TIMER_GROUP_0, timer_idx);
@@ -102,7 +107,7 @@ void Timer::pause()
     timer_pause(TIMER_GROUP_0, timer_idx);
 }
 
-double Timer::get_remainder(timer_idx_t timer_idx)
+double Timer::get_remainder_as_double(timer_idx_t timer_idx)
 {
     uint64_t alarm_value{0};
     uint64_t current_value{0};
@@ -113,4 +118,11 @@ double Timer::get_remainder(timer_idx_t timer_idx)
     double curr{((double) current_value)/TIMER_SCALE };
     double alarm{((double) alarm_value)/TIMER_SCALE };
     return alarm - curr;
+}
+
+Clock Timer::get_remainder_as_clock(timer_idx_t timer_idx){
+    Clock clock;
+    clock = clock + (int) this->get_remainder_as_double(timer_idx)+0.5;
+    // printf("%s\n",clock.to_string().c_str());
+    return clock;
 }

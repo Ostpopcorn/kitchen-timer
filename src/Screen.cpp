@@ -44,14 +44,16 @@ void Screen<LiquidCrystalGPIO*>::set_lcd_object(LiquidCrystalGPIO* lcd){
 }
 
 void Screen<LiquidCrystalGPIO*>::update(Timer* timer){
-    int start_pos_col = 6;
+    int start_pos_col = 8;
     int start_pos_row = 0;
     if (lcd == NULL){
         ESP_LOGI("SCREEN","No lcd assigned");
         return;
     }
     char display_string[16];
-    size_t print_len = sprintf(display_string,"%.1f",timer->get_remainder(TIMER_0));
+    // size_t print_len = sprintf(display_string,"%.1f",timer->get_remainder_as_double(TIMER_0));
+    size_t print_len = sprintf(display_string,"%s",timer->get_remainder_as_clock(TIMER_0).to_string(true,' ').c_str());
+
     for (size_t i = 0; i < print_len; i++)
     {
         lcd->setCursor(start_pos_col-i,start_pos_row);

@@ -6,7 +6,7 @@
 #include "freertos/queue.h"
 #include "driver/periph_ctrl.h"
 #include "driver/timer.h"
-
+#include "clock.h"
 
 typedef struct {
     int type;  // the type of timer's event
@@ -25,9 +25,11 @@ public:
     Timer();
     xQueueHandle get_queue_handle();
     void set_alarm_value(double timer_interval_sec);
+    void set_alarm_value(Clock timer_interval_sec);
     void start();
     void pause();
-    double get_remainder(timer_idx_t timer_idx);
+    double get_remainder_as_double(timer_idx_t timer_idx);
+    Clock get_remainder_as_clock(timer_idx_t timer_idx);
 };
 
 
