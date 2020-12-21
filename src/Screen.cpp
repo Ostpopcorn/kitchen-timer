@@ -1,27 +1,32 @@
 #include "Screen.h"
 #include "freertos/task.h"
 
-Screen::Screen(){
 
-}
-
-Screen::Screen(LiquidCrystalGPIO* lcd){
+Screen<LiquidCrystalGPIO*>::Screen(LiquidCrystalGPIO* lcd){
     set_lcd_object(lcd);
 }
 
-Screen::Screen(LiquidCrystalGPIO* lcd,gpio_num_t backlight_gpio){
+Screen<LiquidCrystalGPIO*>::Screen(LiquidCrystalGPIO* lcd,gpio_num_t backlight_gpio){
     set_lcd_object(lcd);
     set_backlight_gpio(backlight_gpio);
 }
+template<class T>
+Screen<T>::Screen(){
 
-Screen::~Screen(){
+}
+
+Screen<LiquidCrystalGPIO*>::~Screen(){
     if (lcd != NULL){
         free(lcd);
     }
     ledc_fade_func_uninstall();
 }
 
-void Screen::set_lcd_object(LiquidCrystalGPIO* lcd){
+template<class T>
+Screen<T>::~Screen(){
+}
+
+void Screen<LiquidCrystalGPIO*>::set_lcd_object(LiquidCrystalGPIO* lcd){
     const int numRows = 2;
     const int numCols = 16;
     this->lcd = lcd;
@@ -35,7 +40,7 @@ void Screen::set_lcd_object(LiquidCrystalGPIO* lcd){
     lcd->write('J');
 }
 
-void Screen::set_backlight_gpio(gpio_num_t gpio){
+void Screen<LiquidCrystalGPIO*>::set_backlight_gpio(gpio_num_t gpio){
     backlight_led = gpio;
     ledc_timer.speed_mode = LEDC_LOW_SPEED_MODE;           // timer mode
     ledc_timer.duty_resolution = LEDC_TIMER_8_BIT; // resolution of PWM duty
@@ -59,11 +64,11 @@ void Screen::set_backlight_gpio(gpio_num_t gpio){
 
 }
 
-void Screen::set_fade_time(uint32_t new_fade_time){
+void Screen<LiquidCrystalGPIO*>::set_fade_time(uint32_t new_fade_time){
     fade_time = new_fade_time;
 }
 
-void Screen::fade_backlight_to(uint32_t value){
+void Screen<LiquidCrystalGPIO*>::fade_backlight_to(uint32_t value){
     ledc_set_fade_with_time(ledc_channel.speed_mode,
             ledc_channel.channel, value, fade_time);
     ledc_fade_start(ledc_channel.speed_mode,

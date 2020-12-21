@@ -88,7 +88,7 @@ extern "C" void app_main()
                     lcd_d4,lcd_d5,lcd_d6,lcd_d7,
                     GPIO_NUM_NC,GPIO_NUM_NC,GPIO_NUM_NC,GPIO_NUM_NC);
     // lcd.begin(numCols, numRows);
-    Screen screen{lcd,lcd_dimmer};  // 
+    Screen<LiquidCrystalGPIO*> screen{lcd,lcd_dimmer};  // 
     // screen.set_backlight_gpio(lcd_dimmer);
     screen.fade_backlight_to(0xff);
 
