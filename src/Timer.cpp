@@ -3,7 +3,7 @@
 #define TIMER_DIVIDER         16  //  Hardware timer clock divider
 #define TIMER_SCALE           (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
 
-xQueueHandle queue_handle = xQueueCreate(4, sizeof(timer_event_t));
+// xQueueHandle queue_handle;
 
 typedef struct {
     timer_idx_t timer_id;
@@ -12,14 +12,11 @@ typedef struct {
 
 void IRAM_ATTR timer_group0_isr(void *para)
 {
-    
     timer_spinlock_take(TIMER_GROUP_0);
 
-    //timer_isr_input_data_t* input_data = (timer_isr_input_data_t*) para;
+    timer_isr_input_data_t* input_data = (timer_isr_input_data_t*) para;
 
-    //timer_idx_t timer_idx = (timer_idx_t) input_data->timer_id;
-
-    timer_idx_t timer_idx = (timer_idx_t) ((int) para);
+    timer_idx_t timer_idx = input_data->timer_id;
     /* Retrieve the interrupt status and the counter value
        from the timer that reported the interrupt */
     uint32_t timer_intr = timer_group_get_intr_status_in_isr(TIMER_GROUP_0);
@@ -47,7 +44,7 @@ void IRAM_ATTR timer_group0_isr(void *para)
     timer_group_enable_alarm_in_isr(TIMER_GROUP_0, timer_idx);
 
     /* Now just send the event data back to the main program task */
-    xQueueSendFromISR(queue_handle, &evt, NULL);
+    xQueueSendFromISR(input_data->queue, &evt, NULL);
     timer_spinlock_give(TIMER_GROUP_0);
 }
 
@@ -56,9 +53,11 @@ Timer::Timer(){
 }
 
 xQueueHandle Timer::get_queue_handle(){
-    return queue_handle;
+    return this->queue_handle;
 }
-void Timer::init(){
+void Timer::init()
+{
+    this->queue_handle = xQueueCreate(4, sizeof(timer_event_t));
 
     timer_config_t config = {
         .alarm_en = TIMER_ALARM_EN,
@@ -71,17 +70,15 @@ void Timer::init(){
     timer_init(TIMER_GROUP_0, timer_idx, &config);
     timer_set_counter_value(TIMER_GROUP_0, timer_idx, 0x00000000ULL);
     
-    
     timer_isr_input_data_t* data_for_isr;
     data_for_isr = new timer_isr_input_data_t{
         .timer_id = this->timer_idx,
-        .queue = queue_handle,
+        .queue = this->queue_handle,
     };
-
 
     timer_enable_intr(TIMER_GROUP_0, timer_idx);
     timer_isr_register(TIMER_GROUP_0, timer_idx, timer_group0_isr,
-                       (void *) timer_idx, ESP_INTR_FLAG_IRAM, NULL);
+                       (void *) data_for_isr, ESP_INTR_FLAG_IRAM, NULL);
 }
 
 void Timer::set_alarm_value(double timer_interval_sec) {

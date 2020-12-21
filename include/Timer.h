@@ -19,9 +19,9 @@ typedef struct {
 
 class Timer{
     timer_idx_t timer_idx = TIMER_0;
+    xQueueHandle queue_handle;
     void init();
 public:
-    // xQueueHandle queue_handle;
     Timer();
     xQueueHandle get_queue_handle();
     void set_alarm_value(double timer_interval_sec);
