@@ -1,7 +1,38 @@
 #include "Screen.h"
+#include "freertos/task.h"
 
 Screen::Screen(){
 
+}
+
+Screen::Screen(LiquidCrystalGPIO* lcd){
+    set_lcd_object(lcd);
+}
+
+Screen::Screen(LiquidCrystalGPIO* lcd,gpio_num_t backlight_gpio){
+    set_lcd_object(lcd);
+    set_backlight_gpio(backlight_gpio);
+}
+
+Screen::~Screen(){
+    if (lcd != NULL){
+        free(lcd);
+    }
+    ledc_fade_func_uninstall();
+}
+
+void Screen::set_lcd_object(LiquidCrystalGPIO* lcd){
+    const int numRows = 2;
+    const int numCols = 16;
+    this->lcd = lcd;
+    this->lcd->begin(numCols, numRows);
+    vTaskDelay(50 / portTICK_PERIOD_MS);
+    lcd->setCursor(0, 0);
+    lcd->write('H');
+    lcd->setCursor(1,0);
+    lcd->write('E');
+    lcd->setCursor(2, 0);
+    lcd->write('J');
 }
 
 void Screen::set_backlight_gpio(gpio_num_t gpio){
@@ -27,9 +58,11 @@ void Screen::set_backlight_gpio(gpio_num_t gpio){
     ledc_fade_func_install(0);
 
 }
+
 void Screen::set_fade_time(uint32_t new_fade_time){
     fade_time = new_fade_time;
 }
+
 void Screen::fade_backlight_to(uint32_t value){
     ledc_set_fade_with_time(ledc_channel.speed_mode,
             ledc_channel.channel, value, fade_time);

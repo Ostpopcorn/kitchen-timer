@@ -69,9 +69,33 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(rotary_encoder_set_queue(&rotary_encoder_info, rotary_encoder_event_queue));
 
     //Sound sound{};    // Need to init this before the buttons in order to have btn_2 work since it uses DAC_2 pin
-    Screen screen{};  // 
-    screen.set_backlight_gpio(lcd_dimmer);
+
+
+    ESP_LOGI(TAG, "Starting screen");
+    // LCD init 
+    gpio_num_t lcd_rs = GPIO_NUM_21;
+    gpio_num_t lcd_rw = GPIO_NUM_NC;
+    gpio_num_t lcd_en = GPIO_NUM_19;
+
+    gpio_num_t lcd_d4 = GPIO_NUM_18;
+    gpio_num_t lcd_d5 = GPIO_NUM_5;
+    gpio_num_t lcd_d6 = GPIO_NUM_17;
+    gpio_num_t lcd_d7 = GPIO_NUM_16;
+
+            
+    LiquidCrystalGPIO* lcd = new LiquidCrystalGPIO(LiquidCrystal::bit_mode::FOUR_BIT 
+                    ,lcd_rs,lcd_rw,lcd_en,
+                    lcd_d4,lcd_d5,lcd_d6,lcd_d7,
+                    GPIO_NUM_NC,GPIO_NUM_NC,GPIO_NUM_NC,GPIO_NUM_NC);
+    // lcd.begin(numCols, numRows);
+    Screen screen{lcd,lcd_dimmer};  // 
+    // screen.set_backlight_gpio(lcd_dimmer);
     screen.fade_backlight_to(0xff);
+
+    Timer timer;
+    timer.set_alarm_value(5);
+    timer.start();
+
     // Button init 
     gpio_num_t btn_1 = GPIO_NUM_27;
     gpio_num_t btn_2 = GPIO_NUM_26;
@@ -83,128 +107,98 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(button_init(&button_info, btn_gpio_arr));
     ESP_ERROR_CHECK(button_set_queue(&button_info, button_event_queue));
 
-
-    ESP_LOGI(TAG, "Starting screen");
-    const int numRows = 2;
-    const int numCols = 16;
-    // LCD init 
-    gpio_num_t lcd_rs = GPIO_NUM_21;
-    gpio_num_t lcd_rw = GPIO_NUM_NC;
-    gpio_num_t lcd_en = GPIO_NUM_19;
-
-    gpio_num_t lcd_d4 = GPIO_NUM_18;
-    gpio_num_t lcd_d5 = GPIO_NUM_5;
-    gpio_num_t lcd_d6 = GPIO_NUM_17;
-    gpio_num_t lcd_d7 = GPIO_NUM_16;
-
-    Timer timer;
-    timer.set_alarm_value(5);
-    timer.start();
-            
-    LiquidCrystalGPIO lcd(LiquidCrystal::bit_mode::FOUR_BIT 
-                    ,lcd_rs,lcd_rw,lcd_en,
-                    lcd_d4,lcd_d5,lcd_d6,lcd_d7,
-                    GPIO_NUM_NC,GPIO_NUM_NC,GPIO_NUM_NC,GPIO_NUM_NC);
-    lcd.begin(numCols, numRows);
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-    lcd.setCursor(0, 0);
-    lcd.write('H');
-    lcd.setCursor(1,0);
-    lcd.write('E');
-    lcd.setCursor(2, 0);
-    lcd.write('J');
-    ESP_LOGI(TAG,"Setup done!");
-
-
     button_event_t btn_ev = GENERATE_BUTTON_EVENT_T;
     rotary_encoder_event_t rot_ev = GENERAT_ROTARY_ENCODER_EVENT_T;
     timer_event_t timer_event = GENERAT_TIMER_EVENT_T;
     xQueueHandle timer_queue = timer.get_queue_handle();
+
+    ESP_LOGI(TAG,"Setup done!");
+
     while (1)
     {
         while (xQueueReceive(button_event_queue, &(btn_ev),1) == pdPASS){
             if (btn_ev.pin == btn_1)
             {
-                lcd.setCursor(1, 1);
+                // lcd.setCursor(1, 1);
                 if (btn_ev.event == BUTTON_RISING_EDGE){
                     ESP_LOGI(TAG, "btn_1 rising edge");
-                    lcd.write('R');
+                    // lcd.write('R');
                     screen.fade_backlight_to(0xff/2);
                 }
                 else if (btn_ev.event == BUTTON_FALLING_EDGE){
                     ESP_LOGI(TAG, "btn_1 short press falling edge");
-                    lcd.write('F');
+                    // lcd.write('F');
                     screen.fade_backlight_to(0xff);
                 }
                 else if (btn_ev.event == BUTTON_LONG_PRESS){
                     ESP_LOGI(TAG, "btn_1 long press");
-                    lcd.write('L');
+                    // lcd.write('L');
                     screen.fade_backlight_to(0xff/4);
                 }
                 else if (btn_ev.event == BUTTON_FALLING_EDGE_LONG){
                     ESP_LOGI(TAG, "btn_1 long press falling edge");
-                    lcd.write('X');
+                    // lcd.write('X');
                     screen.fade_backlight_to(0xff);
                 }
             }
             else if ((btn_ev.pin == btn_2) )
             {
-                lcd.setCursor(2, 1);
+                // lcd.setCursor(2, 1);
                 if (btn_ev.event == BUTTON_RISING_EDGE){
                     ESP_LOGI(TAG, "btn_2 rising edge");
-                    lcd.write('R');
+                    // lcd.write('R');
                 }
                 else if (btn_ev.event == BUTTON_FALLING_EDGE){
                     ESP_LOGI(TAG, "btn_2 short press falling edge");
-                    lcd.write('F');
+                    // lcd.write('F');
                 }
                 else if (btn_ev.event == BUTTON_LONG_PRESS){
                     ESP_LOGI(TAG, "btn_2 long press");
-                    lcd.write('L');
+                    // lcd.write('L');
                 }
                 else if (btn_ev.event == BUTTON_FALLING_EDGE_LONG){
                     ESP_LOGI(TAG, "btn_2 long press falling edge");
-                    lcd.write('X');
+                    // lcd.write('X');
                 }
             }
             else if ((btn_ev.pin == btn_3) )
             {
-                lcd.setCursor(3, 1);
+                // lcd.setCursor(3, 1);
                 if (btn_ev.event == BUTTON_RISING_EDGE){
                     ESP_LOGI(TAG, "btn_3 rising edge");
-                    lcd.write('R');
+                    // lcd.write('R');
                 }
                 else if (btn_ev.event == BUTTON_FALLING_EDGE){
                     ESP_LOGI(TAG, "btn_3 short press falling edge");
-                    lcd.write('F');
+                    // lcd.write('F');
                 }
                 else if (btn_ev.event == BUTTON_LONG_PRESS){
                     ESP_LOGI(TAG, "btn_3 long press");
-                    lcd.write('L');
+                    // lcd.write('L');
                 }
                 else if (btn_ev.event == BUTTON_FALLING_EDGE_LONG){
                     ESP_LOGI(TAG, "btn_3 long press falling edge");
-                    lcd.write('X');
+                    // lcd.write('X');
                 }
             }
             else if ((btn_ev.pin == rot_enc_btn_gpio) )
             {
-                lcd.setCursor(4, 1);
+                // lcd.setCursor(4, 1);
                 if (btn_ev.event == BUTTON_RISING_EDGE){
                     ESP_LOGI(TAG, "rot_enc_btn_gpio rising edge");
-                    lcd.write('R');
+                    // lcd.write('R');
                 }
                 else if (btn_ev.event == BUTTON_FALLING_EDGE){
                     ESP_LOGI(TAG, "rot_enc_btn_gpio short press falling edge");
-                    lcd.write('F');
+                    // lcd.write('F');
                 }
                 else if (btn_ev.event == BUTTON_LONG_PRESS){
                     ESP_LOGI(TAG, "rot_enc_btn_gpio long press");
-                    lcd.write('L');
+                    // lcd.write('L');
                 }
                 else if (btn_ev.event == BUTTON_FALLING_EDGE_LONG){
                     ESP_LOGI(TAG, "rot_enc_btn_gpio long press falling edge");
-                    lcd.write('X');
+                    // lcd.write('X');
                 }
             }
         }
@@ -212,33 +206,33 @@ extern "C" void app_main()
         while (xQueueReceive(rotary_encoder_event_queue, &rot_ev,1) == pdPASS){
             //ESP_LOGI(TAG,"%i",rot_ev.state.position);
             int number;
-            lcd.setCursor(0, 0);
+            // lcd.setCursor(0, 0);
             if (rot_ev.state.position<0){
-                lcd.write('-');
+                // lcd.write('-');
                 number = -rot_ev.state.position;
             }else{
-                lcd.write(' ');
+                // lcd.write(' ');
                 number = rot_ev.state.position;
             }
 
             for (size_t i = 0; i < 4; i++)
             {   
                 
-                lcd.setCursor(5-i, 0);
+                // lcd.setCursor(5-i, 0);
                 if (number <= 0)
                 {
-                    lcd.write(' ');
-                    lcd.setCursor(3-i, 0);
-                    lcd.write(' ');
+                    // lcd.write(' ');
+                    // lcd.setCursor(3-i, 0);
+                    // lcd.write(' ');
                     break;
                 }
-                lcd.write(number % 10 +'0');
+                // lcd.write(number % 10 +'0');
                 number /= 10;
             }
             
         } 
         
-        while (xQueueReceive(timer_queue, &timer_event,1) == pdPASS){
+        while (xQueueReceive(timer.get_queue_handle(), &timer_event,1) == pdPASS){
             /* Print information that the timer reported an event */
             if (timer_event.type == 1) {
                 printf("\n    Example timer without reload\n");
