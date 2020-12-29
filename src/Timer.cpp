@@ -97,6 +97,13 @@ void Timer::set_alarm_value(Clock clock)
     timer_set_alarm_value(TIMER_GROUP_0, timer_idx, clock.get_all_time_as_second() * TIMER_SCALE);
 }
 
+void Timer::change_alarm_value(int seconds){
+    uint64_t alarm_value{0};
+    timer_get_alarm_value(TIMER_GROUP_0, this->timer_idx, &alarm_value);
+    alarm_value += (uint64_t) seconds * TIMER_SCALE;
+    timer_set_alarm_value(TIMER_GROUP_0, this->timer_idx, alarm_value);
+}
+
 void Timer::start()
 {
     timer_start(TIMER_GROUP_0, timer_idx);

@@ -109,7 +109,13 @@ extern "C" void app_main()
     button_event_t btn_ev = GENERATE_BUTTON_EVENT_T;
     rotary_encoder_event_t rot_ev = GENERAT_ROTARY_ENCODER_EVENT_T;
     timer_event_t timer_event = GENERAT_TIMER_EVENT_T;
-    xQueueHandle timer_queue = timer.get_queue_handle();
+    // xQueueHandle timer_queue = timer.get_queue_handle();
+
+    int32_t mem_len = 16;
+    int32_t prev_rot_enc_pos[mem_len];
+    uint64_t prev_rot_enc_time[mem_len];
+    prev_rot_enc_time[0] = 0;
+    double convolution_vector[mem_len-1] = {10,5,3,2,1,1,1,1,0,0,0,0,0,0,0};
 
     ESP_LOGI(TAG,"Setup done!");
 
@@ -207,31 +213,71 @@ extern "C" void app_main()
         //xQueueReceive(button_event_queue, ev,0);
         while (xQueueReceive(rotary_encoder_event_queue, &rot_ev,1) == pdPASS){
             //ESP_LOGI(TAG,"%i",rot_ev.state.position);
-            int number;
-            // lcd.setCursor(0, 0);
-            if (rot_ev.state.position<0){
-                // lcd.write('-');
-                number = -rot_ev.state.position;
-            }else{
-                // lcd.write(' ');
-                number = rot_ev.state.position;
-            }
+            // Make sure there is more than 10 ms between the different events to make 
+            // have deacent precision
+            uint64_t curr_micros =  (esp_timer_get_time());
+            if ( (curr_micros-prev_rot_enc_time[1]) > 50000 ){
 
-            for (size_t i = 0; i < 4; i++)
-            {   
-                
-                // lcd.setCursor(5-i, 0);
-                if (number <= 0)
-                {
-                    // lcd.write(' ');
-                    // lcd.setCursor(3-i, 0);
-                    // lcd.write(' ');
-                    break;
+                // Rot enc reset condition, too long has passed between the last two events.
+                // Should be one second
+                if ((curr_micros-prev_rot_enc_time[0])>1000000){
+                    rotary_encoder_reset(&rotary_encoder_info);
                 }
-                // lcd.write(number % 10 +'0');
-                number /= 10;
+                
+                for (size_t i = 0; i < mem_len-1; i++)
+                {
+                    prev_rot_enc_pos[mem_len-1-i] = prev_rot_enc_pos[mem_len-1-i-1];
+                    prev_rot_enc_time[mem_len-1-i]  = prev_rot_enc_time[mem_len-1-i-1]; 
+                }
+
+                prev_rot_enc_pos[0]   = rot_ev.state.position;
+                prev_rot_enc_time[0]  = (unsigned long) (esp_timer_get_time());
+
+                for (size_t i = 0; i < mem_len-1; i++)
+                {
+                    // Set one to zero for samples older than 1 sec
+                    if ( (prev_rot_enc_time[0] - prev_rot_enc_time[i]) > 1000000 ){
+                        prev_rot_enc_time[i] = 0;
+                        printf("con len is: %i",i);
+                        break;
+                    }
+                    
+                }
+                
+                // printf("pos: %i %i %i",prev_rot_enc_pos[0],prev_rot_enc_pos[1],prev_rot_enc_pos[2]);
+                // printf("time: %lu %lu %lu",prev_rot_enc_time[0],prev_rot_enc_time[1],prev_rot_enc_time[2]);
+
+                double conv{0};
+                // ESP_LOGI("a","%i %i %i",prev_rot_enc_pos[0],prev_rot_enc_pos[1],prev_rot_enc_pos[2]);
+                for (size_t i = 0; i < mem_len-1; i++)
+                {
+                    if (prev_rot_enc_time[i+1] == 0 || prev_rot_enc_time[i] == 0){
+                        if(i==0){
+                            // First, all other empty
+                            if (prev_rot_enc_pos[i]<0){
+                                conv += -1;
+                            }else{
+                                conv += 1;
+                            }
+                        }
+                        break;
+                    }
+                    double pos_diff = prev_rot_enc_pos[i] - prev_rot_enc_pos[i+1];
+                    double time_diff =prev_rot_enc_time[i] - prev_rot_enc_time[i+1];
+                    conv += pos_diff/time_diff*convolution_vector[i]*1000;
+                            
+                }
+                printf("%6.3f\n",conv);
+                // 
+                if (conv > -1 && conv <1 ){
+                    if (conv >0){
+                        conv = 1;
+                    }else{
+                        conv = -1;
+                    }
+                }
+                timer.change_alarm_value(conv);
             }
-            
         } 
         
         while (xQueueReceive(timer.get_queue_handle(), &timer_event,1) == pdPASS){

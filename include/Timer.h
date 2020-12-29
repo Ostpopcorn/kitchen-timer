@@ -26,6 +26,7 @@ public:
     xQueueHandle get_queue_handle();
     void set_alarm_value(double timer_interval_sec);
     void set_alarm_value(Clock timer_interval_sec);
+    void change_alarm_value(int seconds);
     void start();
     void pause();
     double get_remainder_as_double(timer_idx_t timer_idx);
