@@ -115,7 +115,6 @@ extern "C" void app_main()
     int32_t prev_rot_enc_pos[mem_len];
     uint64_t prev_rot_enc_time[mem_len];
     prev_rot_enc_time[0] = 0;
-    double convolution_vector[mem_len-1] = {10,5,3,2,1,1,1,1,0,0,0,0,0,0,0};
 
     ESP_LOGI(TAG,"Setup done!");
 
@@ -215,69 +214,72 @@ extern "C" void app_main()
             //ESP_LOGI(TAG,"%i",rot_ev.state.position);
             // Make sure there is more than 10 ms between the different events to make 
             // have deacent precision
-            uint64_t curr_micros =  (esp_timer_get_time());
-            if ( (curr_micros-prev_rot_enc_time[1]) > 50000 ){
 
-                // Rot enc reset condition, too long has passed between the last two events.
-                // Should be one second
-                if ((curr_micros-prev_rot_enc_time[0])>1000000){
-                    rotary_encoder_reset(&rotary_encoder_info);
-                }
-                
-                for (size_t i = 0; i < mem_len-1; i++)
-                {
-                    prev_rot_enc_pos[mem_len-1-i] = prev_rot_enc_pos[mem_len-1-i-1];
-                    prev_rot_enc_time[mem_len-1-i]  = prev_rot_enc_time[mem_len-1-i-1]; 
-                }
-
-                prev_rot_enc_pos[0]   = rot_ev.state.position;
-                prev_rot_enc_time[0]  = (unsigned long) (esp_timer_get_time());
-
-                for (size_t i = 0; i < mem_len-1; i++)
-                {
-                    // Set one to zero for samples older than 1 sec
-                    if ( (prev_rot_enc_time[0] - prev_rot_enc_time[i]) > 1000000 ){
-                        prev_rot_enc_time[i] = 0;
-                        printf("con len is: %i",i);
-                        break;
-                    }
-                    
-                }
-                
-                // printf("pos: %i %i %i",prev_rot_enc_pos[0],prev_rot_enc_pos[1],prev_rot_enc_pos[2]);
-                // printf("time: %lu %lu %lu",prev_rot_enc_time[0],prev_rot_enc_time[1],prev_rot_enc_time[2]);
-
-                double conv{0};
-                // ESP_LOGI("a","%i %i %i",prev_rot_enc_pos[0],prev_rot_enc_pos[1],prev_rot_enc_pos[2]);
-                for (size_t i = 0; i < mem_len-1; i++)
-                {
-                    if (prev_rot_enc_time[i+1] == 0 || prev_rot_enc_time[i] == 0){
-                        if(i==0){
-                            // First, all other empty
-                            if (prev_rot_enc_pos[i]<0){
-                                conv += -1;
-                            }else{
-                                conv += 1;
-                            }
-                        }
-                        break;
-                    }
-                    double pos_diff = prev_rot_enc_pos[i] - prev_rot_enc_pos[i+1];
-                    double time_diff =prev_rot_enc_time[i] - prev_rot_enc_time[i+1];
-                    conv += pos_diff/time_diff*convolution_vector[i]*1000;
-                            
-                }
-                printf("%6.3f\n",conv);
-                // 
-                if (conv > -1 && conv <1 ){
-                    if (conv >0){
-                        conv = 1;
-                    }else{
-                        conv = -1;
-                    }
-                }
-                timer.change_alarm_value(conv);
+            // Rot enc reset condition, too long has passed between the last two events.
+            // Should be one second
+            int64_t curr_micros{esp_timer_get_time()};
+            // When there has not been an update in a while we might as well reset the counter of the rotary encoder
+            // to make sure it never leaves its bounds.
+            int64_t rot_enc_reset_time{10000000};
+            // How long it will keep history
+            int64_t history_time_length{500000};
+            if ((curr_micros-prev_rot_enc_time[0])>(rot_enc_reset_time)){
+                printf("rot reset,%llu",(curr_micros-prev_rot_enc_time[0]));
+                rotary_encoder_reset(&rotary_encoder_info);
             }
+            
+            for (size_t i = 0; i < mem_len-1; i++)
+            {
+                prev_rot_enc_pos[mem_len-1-i] = prev_rot_enc_pos[mem_len-1-i-1];
+                prev_rot_enc_time[mem_len-1-i]  = prev_rot_enc_time[mem_len-1-i-1]; 
+            }
+
+            prev_rot_enc_pos[0]   = rot_ev.state.position;
+            prev_rot_enc_time[0]  = curr_micros;
+            
+            int len_of_vec_to_use{0};
+            for (size_t i = 0; i < mem_len-1; i++)
+            {
+                // Set one to zero for samples older than 1 sec
+                if ( (prev_rot_enc_time[0] - prev_rot_enc_time[i]) > history_time_length ){
+                    // prev_rot_enc_time[i] = 0;
+                    len_of_vec_to_use = i;
+                    printf("con len is: %i ",i);
+                    break;
+                }
+                
+            }
+            
+            
+            // Now the previous vector is updated and it can be evaluated
+            double conv{0};
+            int rot_enc_change{prev_rot_enc_pos[0]-prev_rot_enc_pos[len_of_vec_to_use-1]};
+            int rot_enc_change_abs{rot_enc_change*( (int) ((rot_enc_change>=0)?1:-1) )};
+            // ESP_LOGI("a","%i %i %i",prev_rot_enc_pos[0],prev_rot_enc_pos[1],prev_rot_enc_pos[2]);
+            if (len_of_vec_to_use == 0){
+                printf("ERROR");
+            } else if (len_of_vec_to_use == 1){
+                if (prev_rot_enc_pos[0]>0){
+                    conv = 1;
+                }else{
+                    conv = -1;
+                }
+            } else {
+                // First set the amout to scroll by
+                if (rot_enc_change_abs>=25){
+                    conv = 15;
+                } else if (rot_enc_change_abs>=15){
+                    conv = 5;
+                }else{
+                    conv = 1;
+                }
+                // Then correct its sign
+                conv *= ( (double) ((rot_enc_change>=0)?1:-1) );
+            }
+            printf("change %i, conv %f\n",rot_enc_change,conv);
+
+            timer.change_alarm_value(conv);
+        
         } 
         
         while (xQueueReceive(timer.get_queue_handle(), &timer_event,1) == pdPASS){
