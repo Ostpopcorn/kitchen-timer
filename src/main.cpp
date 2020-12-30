@@ -215,27 +215,30 @@ extern "C" void app_main()
             // Make sure there is more than 10 ms between the different events to make 
             // have deacent precision
 
-            // Rot enc reset condition, too long has passed between the last two events.
-            // Should be one second
-            int64_t curr_micros{esp_timer_get_time()};
-            // When there has not been an update in a while we might as well reset the counter of the rotary encoder
-            // to make sure it never leaves its bounds.
-            int64_t rot_enc_reset_time{10000000};
-            // How long it will keep history
-            int64_t history_time_length{500000};
-            if ((curr_micros-prev_rot_enc_time[0])>(rot_enc_reset_time)){
-                printf("rot reset,%llu",(curr_micros-prev_rot_enc_time[0]));
-                rotary_encoder_reset(&rotary_encoder_info);
-            }
-            
             for (size_t i = 0; i < mem_len-1; i++)
             {
                 prev_rot_enc_pos[mem_len-1-i] = prev_rot_enc_pos[mem_len-1-i-1];
                 prev_rot_enc_time[mem_len-1-i]  = prev_rot_enc_time[mem_len-1-i-1]; 
             }
 
-            prev_rot_enc_pos[0]   = rot_ev.state.position;
+            int64_t curr_micros{esp_timer_get_time()};
+            // When there has not been an update in a while we might as well reset the counter of the rotary encoder
+            // to make sure it never leaves its bounds.
+            int64_t rot_enc_reset_time{10000000};
+            // How long it will keep history
+            int64_t history_time_length{500000};
+
+            // Rot enc reset condition, too long has passed between the last two events.
+            if ((curr_micros-prev_rot_enc_time[0])>(rot_enc_reset_time)){
+                printf("rot reset,%llu",(curr_micros-prev_rot_enc_time[0]));
+                rotary_encoder_reset(&rotary_encoder_info);
+                prev_rot_enc_pos[0]   = 0;
+            }else{
+
+                prev_rot_enc_pos[0]   = rot_ev.state.position;
+            }
             prev_rot_enc_time[0]  = curr_micros;
+            
             
             int len_of_vec_to_use{0};
             for (size_t i = 0; i < mem_len-1; i++)
