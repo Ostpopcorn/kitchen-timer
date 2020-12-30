@@ -1,5 +1,6 @@
-#ifndef TIMER_TIMER_H
-#define TIMER_TIMER_H
+#ifndef ESP_TIMER_CLASS_H
+#define ESP_TIMER_CLASS_H
+
 #include "esp_types.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"

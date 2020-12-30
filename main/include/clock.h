@@ -1,5 +1,5 @@
-#ifndef CLOCK_H
-#define CLOCK_H
+#ifndef ESP_CLOCK_H
+#define ESP_CLOCK_H
 #include <string>
 class Clock
 {

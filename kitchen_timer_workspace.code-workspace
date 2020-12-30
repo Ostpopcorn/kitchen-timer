@@ -9,6 +9,7 @@
 		"files.associations": {
 			"*.ipp": "cpp",
 			"iomanip": "cpp"
-		}
+		},
+		"idf.portWin": "COM13"
 	}
 }
