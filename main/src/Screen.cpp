@@ -35,12 +35,20 @@ void Screen<LiquidCrystalGPIO*>::set_lcd_object(LiquidCrystalGPIO* lcd){
     this->lcd = lcd;
     this->lcd->begin(numCols, numRows);
     vTaskDelay(50 / portTICK_PERIOD_MS);
-    lcd->setCursor(0, 0);
-    lcd->write('H');
-    lcd->setCursor(1,0);
-    lcd->write('E');
-    lcd->setCursor(2, 0);
-    lcd->write('J');
+    std::string startup_message = CONFIG_SCREEN_STARTUP_MESSAGE;
+    int print_len = startup_message.length()>16?16:startup_message.length();
+    for (size_t i = 0; i < print_len; i++)
+    {
+        lcd->setCursor(i, 1);
+        lcd->write(startup_message[i]);
+        
+    }
+    // lcd->setCursor(0, 0);
+    // lcd->write('H');
+    // lcd->setCursor(1,0);
+    // lcd->write('E');
+    // lcd->setCursor(2, 0);
+    // lcd->write('J');
 }
 
 void Screen<LiquidCrystalGPIO*>::update(Timer* timer){

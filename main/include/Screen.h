@@ -3,7 +3,7 @@
 #include "LiquidCrystalGPIO.h"
 #include "driver/gpio.h"
 #include "driver/ledc.h"
-#include "Timer.h"
+#include "timer_class.h"
 #include "time.h"
 
 template<class T>

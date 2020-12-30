@@ -14,7 +14,7 @@
 #include "button.h"
 #include "Sound.h"
 #include "Screen.h"
-#include "Timer.h"
+#include "timer_class.h"
 #include "LiquidCrystalGPIO.h"
 
 #define TIMER_DIVIDER         16  //  Hardware timer clock divider

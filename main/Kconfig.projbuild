@@ -1,0 +1,7 @@
+menu "Timer configuration"
+    config SCREEN_STARTUP_MESSAGE
+        string "Screen startup message"
+        default "HEJ"
+        help
+            Välj vad som ska stå på skärmen när configurationen är klar!
+endmenu
