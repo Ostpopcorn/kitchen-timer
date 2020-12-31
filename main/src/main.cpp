@@ -17,16 +17,7 @@
 #include "timer_class.h"
 #include "LiquidCrystalGPIO.h"
 
-#define TIMER_DIVIDER         16  //  Hardware timer clock divider
-#define TIMER_SCALE           (TIMER_BASE_CLK / TIMER_DIVIDER)  // convert counter value to seconds
-
 #define TAG "MAIN"
-static void inline print_timer_counter(uint64_t counter_value)
-{
-    printf("Counter: 0x%08x%08x\n", (uint32_t) (counter_value >> 32),
-           (uint32_t) (counter_value));
-    printf("Time   : %.8f s\n", (double) counter_value / TIMER_SCALE);
-}
 
 extern "C" void app_main()
 {
@@ -91,7 +82,8 @@ extern "C" void app_main()
     Screen<LiquidCrystalGPIO*> screen{lcd,lcd_dimmer};  // 
     // screen.set_backlight_gpio(lcd_dimmer);
     screen.fade_backlight_to(0xff);
-
+    screen.change_view(ScreenBase::screen_views::CLOCK_WELCOME);
+    screen.update();
     Timer timer;
     timer.set_alarm_value(122);
 
@@ -127,22 +119,19 @@ extern "C" void app_main()
                 if (btn_ev.event == BUTTON_RISING_EDGE){
                     ESP_LOGI(TAG, "btn_1 rising edge");
                     // lcd.write('R');
-                    screen.fade_backlight_to(0xff/2);
+                    screen.change_view(ScreenBase::screen_views::CLOCK_SHOW_TIMER);
                 }
                 else if (btn_ev.event == BUTTON_FALLING_EDGE){
                     ESP_LOGI(TAG, "btn_1 short press falling edge");
                     // lcd.write('F');
-                    screen.fade_backlight_to(0xff);
                 }
                 else if (btn_ev.event == BUTTON_LONG_PRESS){
                     ESP_LOGI(TAG, "btn_1 long press");
                     // lcd.write('L');
-                    screen.fade_backlight_to(0xff/4);
                 }
                 else if (btn_ev.event == BUTTON_FALLING_EDGE_LONG){
                     ESP_LOGI(TAG, "btn_1 long press falling edge");
                     // lcd.write('X');
-                    screen.fade_backlight_to(0xff);
                 }
             }
             else if ((btn_ev.pin == btn_2) )
@@ -297,14 +286,14 @@ extern "C" void app_main()
             printf("Group[%d], timer[%d] alarm event\n", timer_event.timer_group, timer_event.timer_idx);
 
             /* Print the timer values passed by event */
-            printf("------- EVENT TIME --------\n");
-            print_timer_counter(timer_event.timer_counter_value);
+            //printf("------- EVENT TIME --------\n");
+            //print_timer_counter(timer_event.timer_counter_value);
 
             /* Print the timer values as visible by this task */
-            printf("-------- TASK TIME --------\n");
-            uint64_t task_counter_value;
-            timer_get_counter_value(timer_event.timer_group, timer_event.timer_idx, &task_counter_value);
-            print_timer_counter(task_counter_value);
+            //printf("-------- TASK TIME --------\n");
+            //uint64_t task_counter_value;
+            //timer_get_counter_value(timer_event.timer_group, timer_event.timer_idx, &task_counter_value);
+            //print_timer_counter(task_counter_value);
         }
         //ESP_LOGI("H","%f",timer.get_remainder_as_double(TIMER_0));
         screen.update(&timer);

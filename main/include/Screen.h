@@ -6,15 +6,35 @@
 #include "timer_class.h"
 #include "time.h"
 
-template<class T>
-class Screen{
+
+// template<class T>
+class ScreenBase {
 public:
+    ScreenBase(){};
+    virtual ~ScreenBase(){};
+
+    typedef enum {
+        CLOCK_BLANK = 0,
+        CLOCK_WELCOME = 1,
+        CLOCK_SHOW_TIMER = 10,
+    } screen_views;
+    virtual void change_view(screen_views new_view);
+    // 
+    virtual void update(Timer* timer = NULL);
+protected:
+    screen_views current_view{CLOCK_BLANK};
+
+};
+
+template<class T>
+class Screen : public ScreenBase
+{
     Screen();
     virtual ~Screen();
 };
 
 template<>
-class Screen<LiquidCrystalGPIO*>
+class Screen<LiquidCrystalGPIO*> : public ScreenBase
 {
 private:
     LiquidCrystalGPIO* lcd;
@@ -29,8 +49,10 @@ public:
     Screen(LiquidCrystalGPIO* lcd, gpio_num_t backlight_gpio);
     virtual ~Screen();
     void set_lcd_object(LiquidCrystalGPIO* lcd);
-    // 
-    void update(Timer* timer = NULL);
+
+    virtual void change_view(screen_views new_view);
+
+    virtual void update(Timer* timer = NULL) override;
 
     // Backlight functions
     void set_backlight_gpio(gpio_num_t gpio);
