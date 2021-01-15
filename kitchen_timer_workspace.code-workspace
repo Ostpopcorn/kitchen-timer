@@ -12,8 +12,10 @@
 			"rotary_encoder.h": "c",
 			"ios": "cpp",
 			"sstream": "cpp",
-			"iostream": "cpp"
+			"iostream": "cpp",
+			"*.inc": "cpp"
 		},
-		"idf.portWin": "COM13"
+		"idf.portWin": "COM17",
+		"idf.flashType": "UART"
 	}
 }
