@@ -7,7 +7,6 @@
 #include "driver/gpio.h"
 #include "driver/adc.h"
 
-
 #include <stdbool.h>
 
 #include "rotary_encoder.h"
@@ -26,7 +25,11 @@ extern "C" void app_main()
     
     gpio_num_t enable_5V_pin = GPIO_NUM_23;
     gpio_num_t battery_monitor_enable_pin = GPIO_NUM_32;
-    gpio_num_t battery_monitor_analog_pin = GPIO_NUM_33;
+    
+    // Need both ADC channel and GPIO NUM
+    gpio_num_t battery_monitor_analog_pin = GPIO_NUM_33; 
+    adc1_channel_t battery_monitor_analog_adc1_channel = ADC1_CHANNEL_5;
+
     gpio_num_t ws2812b_data_pin = GPIO_NUM_2;
     gpio_num_t lcd_dimmer = GPIO_NUM_4;
     uint64_t pin_mask_ctrl = (1ULL<<enable_5V_pin) | 
@@ -44,7 +47,7 @@ extern "C" void app_main()
     gpio_config(&io_conf);
     gpio_set_level(enable_5V_pin, 1);
     gpio_set_level(lcd_dimmer, 1);
-
+    ;
     // Create the queues for handling events
     QueueHandle_t button_event_queue = button_create_queue();
     QueueHandle_t rotary_encoder_event_queue = rotary_encoder_create_queue();

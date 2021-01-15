@@ -5,7 +5,7 @@ class Sound {
     /*
       Men om vi säger att den ska skicka 
     */
-    uint8_t i2s_num = I2S_NUM_0;
+    i2s_port_t i2s_num = I2S_NUM_0;
     i2s_config_t i2s_config = {
         .mode =(i2s_mode_t) (I2S_MODE_MASTER | I2S_MODE_TX | I2S_MODE_DAC_BUILT_IN),
         .sample_rate = 44100,
