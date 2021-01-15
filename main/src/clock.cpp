@@ -1,8 +1,5 @@
 #include "clock.h"
-#include <iostream>
-#include <sstream>
-#include <ios>
-#include "iomanip"
+#include "string.h"
 using namespace std;
 
 void add_time(int &h, int &m, int &s);
@@ -21,97 +18,123 @@ void Clock::set_time(int h, int m, int s)
   //: hour{h}, minute{m}, second{s}
   if (h < 0 || h > 23)
   {
-    cout << "Felaktig inmatning! Out of bounds, timma" << endl;
+    //cout << "Felaktig inmatning! Out of bounds, timma" << endl;
   }
   if (m < 0 || m > 59)
   {
-    cout << "Felaktig inmatning! Out of bounds, minut" << endl;
+    //cout << "Felaktig inmatning! Out of bounds, minut" << endl;
   }
   if (s < 0 || s > 59)
   {
-    cout << "Felaktig inmatning! Out of bounds, sekund" << endl;
+    //cout << "Felaktig inmatning! Out of bounds, sekund" << endl;
   }
   hour = h;
   minute = m;
   second = s;
 }
 
-string Clock::to_string(bool format_24h,char fill) const
+string Clock::to_string(bool format_24h, char fill) const
 {
-  ostringstream o_string_stream{};
+  int print_len{format_24h ? 8 : 11};
+  int hms_start_pos{format_24h ? 0 : 3};
+  char output[11];
+  char printstr[13];
+
+  memset(output, ' ', print_len);
+  memset(printstr, ' ', 13);
+
   bool has_larger{false};
   if (format_24h)
   {
-    if (hour>0){
-      o_string_stream << setw(2) << setfill(fill) << hour;
-      o_string_stream << ':';
+    if (hour > 0)
+    {
+      sprintf(printstr, "%.2i", hour);
+
       has_larger = true;
       fill = '0';
-    }else{
-      o_string_stream << setw(2) << setfill(fill) << ' ';
-      o_string_stream << ' ';
     }
-
   }
   else
   {
     if (hour > 12)
     {
-      o_string_stream << setw(2) << setfill(fill) << (hour - 12);
+      sprintf(printstr, "%.2i", hour - 12);
     }
     else if (hour == 0)
     {
-      o_string_stream << setw(2) << setfill(fill) << 12;
+      sprintf(printstr, "%.2i", 12);
     }
     else
     {
-      o_string_stream << setw(2) << setfill(fill) << 12;
+      sprintf(printstr, "%.2i", hour);
+    }
+    has_larger = true;
+  }
+  memcpy(&output[hms_start_pos], printstr, 2);
+  if (has_larger)
+  {
+    output[hms_start_pos + 2] = ':';
+  }
+
+  memset(printstr, ' ', 2);
+  if (minute != 0)
+  {
+
+    memset(printstr, fill, 2);
+    sprintf(printstr, "%.2i", minute);
+    has_larger = true;
+    fill = '0';
+  }
+  else
+  {
+    if (has_larger)
+    {
+      memset(printstr, '0', 2);
     }
   }
 
-  if(minute!=0){
-    o_string_stream << setw(2) << setfill(fill) << minute;
+  memcpy(&output[hms_start_pos + 3], printstr, 2);
+  if (has_larger)
+  {
+    output[hms_start_pos + 5] = ':';
+  }
+
+  memset(printstr, ' ', 2);
+
+  if (second != 0)
+  {
+    sprintf(printstr, "%.2i", second);
     has_larger = true;
     fill = '0';
-      o_string_stream << ':';
-  }else
+  }
+  else
   {
-    if ( has_larger){
-      o_string_stream << setw(2) << setfill(fill) << '0';
-      o_string_stream << ':';
-    }else{
-      o_string_stream << setw(2) << setfill(fill) << ' ';
-      o_string_stream << ' ';
+    if (has_larger)
+    {
+      memset(printstr, '0', 2);
+    }
+    else
+    {
+      memset(&printstr[1], '0', 1);
     }
   }
-  if(second!=0){
-    o_string_stream << setw(2) << setfill(fill) << second;
-    has_larger = true;
-    fill = '0';
-  }else
-  {
-    if ( has_larger){
-      o_string_stream << setw(2) << setfill(fill) << '0';
-    }else{
-      o_string_stream << setw(2) << setfill(fill) << '0';
-    }
-  }
-  
-  
+
+  memcpy(&output[hms_start_pos + 6], printstr, 2);
+
   /*AM/PM eller inget*/
   if (!format_24h)
   {
     if (hour < 12)
     {
-      o_string_stream << " am";
+      memcpy(&output[9], "am", 2);
     }
     else
     {
-      o_string_stream << " pm";
+      memcpy(&output[9], "pm", 2);
     }
   }
-  string time_string{o_string_stream.str()};
-  return time_string;
+
+  return string(output, print_len);
 }
 
 void Clock::increment_time()
@@ -153,7 +176,7 @@ void add_time(int &h, int &m, int &s)
   }
 }
 
-Clock Clock::operator=(Clock const & rhs)
+Clock Clock::operator=(Clock const &rhs)
 {
   second = rhs.get_second();
   minute = rhs.get_minute();
@@ -176,7 +199,7 @@ Clock Clock::operator+(int rhs) const
 
 Clock Clock::operator-(int rhs) const
 {
-  Clock return_clock = *this +(-rhs);
+  Clock return_clock = *this + (-rhs);
   return return_clock;
 }
 
@@ -187,7 +210,7 @@ Clock Clock::operator++(int)
   this->increment_time();
   return return_clock;
 }
-Clock& Clock::operator++()
+Clock &Clock::operator++()
 {
 
   Clock return_clock{};
@@ -201,7 +224,7 @@ Clock Clock::operator--(int)
   this->decrement_time();
   return return_clock;
 }
-Clock& Clock::operator--()
+Clock &Clock::operator--()
 {
 
   Clock return_clock{};
@@ -221,8 +244,9 @@ int Clock::get_second() const
 {
   return second;
 }
-int Clock::get_all_time_as_second() const{
-  return this->second + (60*this->minute) + (60*60*this->hour);
+int Clock::get_all_time_as_second() const
+{
+  return this->second + (60 * this->minute) + (60 * 60 * this->hour);
 }
 
 bool Clock::operator<(Clock const &rhs) const
@@ -255,33 +279,34 @@ bool Clock::operator<(Clock const &rhs) const
   return false;
 }
 
-bool Clock::operator>(Clock const &rhs)const
+bool Clock::operator>(Clock const &rhs) const
 {
-// om a>b = false
-// om a+1>b = false
-// -> a <b
-// a = this
-// b = rhs
-  if(!(*this < rhs) && !((*this-1)< rhs)){
+  // om a>b = false
+  // om a+1>b = false
+  // -> a <b
+  // a = this
+  // b = rhs
+  if (!(*this < rhs) && !((*this - 1) < rhs))
+  {
     return true;
   }
   return false;
 }
 
-bool Clock::operator==(Clock const &rhs)const
+bool Clock::operator==(Clock const &rhs) const
 {
-  return !( (*this < rhs) || (*this > rhs) );
+  return !((*this < rhs) || (*this > rhs));
 }
 
-bool Clock::operator<=(Clock const &rhs)const
+bool Clock::operator<=(Clock const &rhs) const
 {
   return !(*this > rhs);
 }
-bool Clock::operator>=(Clock const &rhs)const
+bool Clock::operator>=(Clock const &rhs) const
 {
   return !(*this < rhs);
 }
-bool Clock::operator!=(Clock const &rhs)const
+bool Clock::operator!=(Clock const &rhs) const
 {
   return !(*this == rhs);
 }
