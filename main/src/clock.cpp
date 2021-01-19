@@ -70,6 +70,9 @@ string Clock::to_string(bool format_24h, char fill) const
     }
     has_larger = true;
   }
+  if(printstr[0]=='0'){
+    printstr[0] = ' ';
+  }
   memcpy(&output[hms_start_pos], printstr, 2);
   if (has_larger)
   {
@@ -93,6 +96,9 @@ string Clock::to_string(bool format_24h, char fill) const
     }
   }
 
+  if(printstr[0]=='0'){
+    printstr[0] = ' ';
+  }
   memcpy(&output[hms_start_pos + 3], printstr, 2);
   if (has_larger)
   {
@@ -119,6 +125,9 @@ string Clock::to_string(bool format_24h, char fill) const
     }
   }
 
+  if(printstr[0]=='0'){
+    printstr[0] = ' ';
+  }
   memcpy(&output[hms_start_pos + 6], printstr, 2);
 
   /*AM/PM eller inget*/
@@ -126,11 +135,11 @@ string Clock::to_string(bool format_24h, char fill) const
   {
     if (hour < 12)
     {
-      memcpy(&output[9], "am", 2);
+      memcpy(&output[0], "am", 2);
     }
     else
     {
-      memcpy(&output[9], "pm", 2);
+      memcpy(&output[0], "pm", 2);
     }
   }
 

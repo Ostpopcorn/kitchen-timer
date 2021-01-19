@@ -13,7 +13,10 @@
 			"ios": "cpp",
 			"sstream": "cpp",
 			"iostream": "cpp",
-			"*.inc": "cpp"
+			"*.inc": "cpp",
+			"string": "cpp",
+			"string_view": "cpp",
+			"xstring": "cpp"
 		},
 		"idf.portWin": "COM17",
 		"idf.flashType": "UART"

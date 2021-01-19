@@ -1,6 +1,9 @@
 #ifndef TIMER_SCREEN_H
 #define TIMER_SCREEN_H
 #include "LiquidCrystalGPIO.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
+#include "freertos/task.h"
 #include "driver/gpio.h"
 #include "driver/ledc.h"
 #include "timer_class.h"
@@ -10,8 +13,8 @@
 // template<class T>
 class ScreenBase {
 public:
-    ScreenBase(){};
-    virtual ~ScreenBase(){};
+    ScreenBase();
+    virtual ~ScreenBase();
 
     typedef enum {
         CLOCK_BLANK = 0,
@@ -21,6 +24,10 @@ public:
     virtual void change_view(screen_views new_view);
     // 
     virtual void update(Timer* timer = NULL);
+    virtual void start();
+    virtual void pass_timer_to_task(Timer* timer);
+    TaskHandle_t  screen_updater_task_handle{NULL};
+    QueueHandle_t screen_queue_handle{NULL};
 protected:
     screen_views current_view{CLOCK_BLANK};
 

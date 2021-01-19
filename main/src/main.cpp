@@ -20,6 +20,7 @@
 
 extern "C" void app_main()
 {
+    // esp_log_set_vprintf(esp_apptrace_vprintf);
     ESP_LOGI(TAG, "Program start...");
     ESP_ERROR_CHECK(gpio_install_isr_service(0));
     
@@ -47,7 +48,7 @@ extern "C" void app_main()
     gpio_config(&io_conf);
     gpio_set_level(enable_5V_pin, 1);
     gpio_set_level(lcd_dimmer, 1);
-    ;
+    
     // Create the queues for handling events
     QueueHandle_t button_event_queue = button_create_queue();
     QueueHandle_t rotary_encoder_event_queue = rotary_encoder_create_queue();
@@ -76,7 +77,7 @@ extern "C" void app_main()
     gpio_num_t lcd_d6 = GPIO_NUM_17;
     gpio_num_t lcd_d7 = GPIO_NUM_16;
 
-            
+
     LiquidCrystalGPIO* lcd = new LiquidCrystalGPIO(LiquidCrystal::bit_mode::FOUR_BIT 
                     ,lcd_rs,lcd_rw,lcd_en,
                     lcd_d4,lcd_d5,lcd_d6,lcd_d7,
@@ -86,9 +87,11 @@ extern "C" void app_main()
     // screen.set_backlight_gpio(lcd_dimmer);
     screen.fade_backlight_to(0xff);
     screen.change_view(ScreenBase::screen_views::CLOCK_WELCOME);
-    screen.update();
+    screen.start();
+    //screen.update();
     Timer timer;
     timer.set_alarm_value(122);
+    screen.pass_timer_to_task(&timer);
 
     // Button init 
     gpio_num_t btn_1 = GPIO_NUM_27;
@@ -106,7 +109,7 @@ extern "C" void app_main()
     timer_event_t timer_event = GENERAT_TIMER_EVENT_T;
     // xQueueHandle timer_queue = timer.get_queue_handle();
 
-    int32_t mem_len = 16;
+    int32_t mem_len = 32;
     int32_t prev_rot_enc_pos[mem_len];
     uint64_t prev_rot_enc_time[mem_len];
     prev_rot_enc_time[0] = 0;
@@ -299,8 +302,8 @@ extern "C" void app_main()
             //print_timer_counter(task_counter_value);
         }
         //ESP_LOGI("H","%f",timer.get_remainder_as_double(TIMER_0));
-        screen.update(&timer);
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+        //screen.update(&timer);
+        vTaskDelay(10 / portTICK_PERIOD_MS);
     }
 
     ESP_ERROR_CHECK(rotary_encoder_uninit(&rotary_encoder_info));

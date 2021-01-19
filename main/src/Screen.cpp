@@ -1,7 +1,25 @@
 #include "Screen.h"
+#include "timer_class.h"
+#include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
 #include "string.h"
+
+#define TAG "SCREEN"
+
+enum queue_event_type_t
+{
+    QUEUE_NO_EVENT = 0,
+    QUEUE_NEW_TIMER = 1,
+};
+typedef enum queue_event_type_t queue_event_type_t;
+
+struct screen_queue_data_t
+{
+    queue_event_type_t type;
+    Timer* timer; 
+} ;
+typedef struct screen_queue_data_t screen_queue_data_t;
 
 
 Screen<LiquidCrystalGPIO*>::Screen(LiquidCrystalGPIO* lcd){
@@ -81,7 +99,7 @@ void Screen<LiquidCrystalGPIO*>::change_view(screen_views new_view){
     ScreenBase::change_view(new_view);
     lcd->clear();
     if (current_view == ScreenBase::screen_views::CLOCK_WELCOME){
-        ESP_LOGI("SCREEN","Setting welcome message");
+        ESP_LOGI(TAG,"Setting welcome message");
         vTaskDelay(50 / portTICK_PERIOD_MS);
         std::string startup_message = CONFIG_SCREEN_STARTUP_MESSAGE;
         int print_len = startup_message.length()>16?16:startup_message.length();
@@ -94,20 +112,24 @@ void Screen<LiquidCrystalGPIO*>::change_view(screen_views new_view){
 }
 
 void ScreenBase::update(Timer* timer){
-    // ESP_LOGI("SCREEN", "update Screenbase called");
+    // ESP_LOGI(TAG, "update Screenbase called");
 }
 
 
 void Screen<LiquidCrystalGPIO*>::update(Timer* timer){
+    if (lcd == NULL){
+        ESP_LOGW(TAG,"No lcd assigned");
+        return;
+    }
     // ESP_LOGI("SCREEN", "update GPIO called");
+
     ScreenBase::update(timer);
     if (current_view == ScreenBase::screen_views::CLOCK_SHOW_TIMER){
-        int start_pos_col = 8;
-        int start_pos_row = 0;
-        if (lcd == NULL){
-            ESP_LOGI("SCREEN","No lcd assigned");
+        if (timer == NULL){
             return;
         }
+        int start_pos_col = 8;
+        int start_pos_row = 0;
         char display_string[16];
         // size_t print_len = sprintf(display_string,"%.1f",timer->get_remainder_as_double(TIMER_0));
         size_t print_len = sprintf(display_string,"%s",timer->get_remainder_as_clock(TIMER_0).to_string(true,' ').c_str());
@@ -126,6 +148,61 @@ void Screen<LiquidCrystalGPIO*>::update(Timer* timer){
         
     }
     
+}
+
+void screen_update_task_function(void* pv){
+    ESP_LOGI(TAG,"task start");
+    if(pv == NULL){
+        ESP_LOGE(TAG,"task function pv was null...");
+        while (1)
+        {
+            vTaskDelay(1000/portTICK_PERIOD_MS);
+        }
+        
+    }
+    ScreenBase* screen = (ScreenBase*)(pv);
+    QueueHandle_t screen_queue_handle{NULL};
+    screen_queue_handle = screen->screen_queue_handle;
+    Timer* timer{NULL};
+    int64_t esp_time{esp_timer_get_time()};
+    screen_queue_data_t queue_event{};
+    while (1)
+    {
+        while (xQueueReceive(screen_queue_handle, &queue_event, 100/portTICK_PERIOD_MS) == pdPASS){
+            if (queue_event.type == QUEUE_NEW_TIMER && queue_event.timer != NULL)
+            {
+                timer = queue_event.timer;
+                // screen->update(timer);
+            }         
+            // delete queue_event;
+            
+        /*
+        */
+        }
+        screen->update(timer);
+    }
+    
+}
+
+void ScreenBase::pass_timer_to_task(Timer* timer)
+{
+    screen_queue_data_t queue_event{QUEUE_NEW_TIMER,timer};
+    xQueueSend(screen_queue_handle,&queue_event,portMAX_DELAY);
+}
+
+ScreenBase::ScreenBase(){
+    // Create semaphore
+    screen_queue_handle = xQueueCreate(4,sizeof(screen_queue_data_t));
+}
+
+void ScreenBase::start(){
+    // Create update task
+    ESP_LOGI(TAG,"start");
+    xTaskCreate(&screen_update_task_function,"screen_update",2048,(void *)this,5,&this->screen_updater_task_handle);
+}
+
+ScreenBase::~ScreenBase(){
+
 }
 
 template<class T>
