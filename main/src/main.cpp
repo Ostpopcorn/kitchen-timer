@@ -13,6 +13,7 @@
 #include "button.h"
 #include "Sound.h"
 #include "Screen.h"
+#include "screen_model.h"
 #include "timer_class.h"
 #include "LiquidCrystalGPIO.h"
 
@@ -20,10 +21,15 @@
 
 extern "C" void app_main()
 {
+
     // esp_log_set_vprintf(esp_apptrace_vprintf);
     ESP_LOGI(TAG, "Program start...");
     ESP_ERROR_CHECK(gpio_install_isr_service(0));
     
+    ScreenModel a{};
+    
+    a.put_new_entry(ScreenModelEntry::ENTRY_STARTUP,CONFIG_SCREEN_STARTUP_MESSAGE);
+
     gpio_num_t enable_5V_pin = GPIO_NUM_23;
     gpio_num_t battery_monitor_enable_pin = GPIO_NUM_32;
     
