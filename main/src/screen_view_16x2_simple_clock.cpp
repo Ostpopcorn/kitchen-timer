@@ -20,6 +20,10 @@ void View16x2SimpleClock::update()
                          1,4,ViewBase::JUSTIFY_CENTER);
     write_text_on_screen(model.get_entry_string(ScreenModelEntry::ENTRY_STOP),
                          1,11,ViewBase::JUSTIFY_CENTER);
+                         
+    if(has_backlight()){
+        backlight->fade_to(255);
+    }
     /*
     int start_offset = 4;
     int print_len_max = 8;

@@ -15,9 +15,13 @@ View16x2Start::~View16x2Start()
 
 void View16x2Start::update()
 {
-    //
+    
     std::string message = model.get_entry_string(ScreenModelEntry::ENTRY_STARTUP);
     write_text_on_screen(message,0,2,ViewBase::JUSTIFY_LEFT);
+
+    if(has_backlight()){
+        backlight->fade_to(127);
+    }
     /*
     int print_len = message.length()>16?16:message.length();
     if (memcmp(message.c_str(),current_screen,print_len)==0){

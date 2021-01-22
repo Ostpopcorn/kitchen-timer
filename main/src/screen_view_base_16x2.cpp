@@ -7,6 +7,7 @@
 
 //Initialization of static members
 LiquidCrystal* ViewBase16x2::lcd{NULL};
+LcdBacklight* ViewBase16x2::backlight{NULL};
 char ViewBase16x2::current_screen[33];
 
 
@@ -34,6 +35,10 @@ void ViewBase16x2::assignLcd(LiquidCrystal* new_lcd)
     lcd->begin(numCols, numRows);
     vTaskDelay(50 / portTICK_PERIOD_MS);
     lcd->clear();
+}
+
+void ViewBase16x2::assignBacklight(LcdBacklight * lcd_backlight){
+    ViewBase16x2::backlight = lcd_backlight;
 }
 
 void ViewBase16x2::write_text_on_screen(const std::string & to_print, int row, int col, justify_t alignment)
@@ -73,7 +78,7 @@ void ViewBase16x2::write_text_on_screen(const std::string & to_print, int row, i
     // Compare to what is currently on screen
     // return if the content match
     if (memcmp(to_print.c_str(),current_screen,print_len)==0){
-        ESP_LOGI(TAG,"O %s.",current_screen);
+        //ESP_LOGI(TAG,"O %s.",current_screen);
 
         return; // message is allready on screen
     }
@@ -85,5 +90,12 @@ void ViewBase16x2::write_text_on_screen(const std::string & to_print, int row, i
         lcd->write(to_print[i]);
         current_screen[i+col] = to_print[i]; 
     }
-    ESP_LOGI(TAG,"U %s.",current_screen);
+    //ESP_LOGI(TAG,"U %s.",current_screen);
+}
+
+bool ViewBase16x2::has_lcd(){
+    return ViewBase16x2::lcd != NULL;
+}
+bool ViewBase16x2::has_backlight(){
+    return ViewBase16x2::backlight != NULL;
 }

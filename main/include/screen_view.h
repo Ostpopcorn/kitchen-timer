@@ -3,6 +3,7 @@
 
 #include "LiquidCrystalGPIO.h"
 #include "screen_model.h"
+#include "screen_backlight.h"
 
 
 class ViewBase
@@ -32,6 +33,7 @@ private:
     static const int numCols{16};
 protected:
     static LiquidCrystal* lcd;
+    static LcdBacklight* backlight;
     static char current_screen[];
     void write_text_on_screen(const std::string & to_print, int row, int col, justify_t alignment);
 
@@ -40,7 +42,9 @@ public:
     virtual ~ViewBase16x2();
 
     static void assignLcd(LiquidCrystal *);
-    void set_backlight_gpio(gpio_num_t gpio);
+    static void assignBacklight(LcdBacklight *);
+    bool has_lcd();
+    bool has_backlight();
 };
 
 
