@@ -336,6 +336,8 @@ extern "C" void app_main()
         }
         //ESP_LOGI("H","%f",timer.get_remainder_as_double(TIMER_0));
         //screen.update(&timer);
+        controller.handle_event_timer(&timer);
+        controller.update();
         vTaskDelay(10 / portTICK_PERIOD_MS);
     }
 
