@@ -12,7 +12,6 @@
 #include "rotary_encoder.h"
 #include "button.h"
 #include "Sound.h"
-#include "Screen.h"
 #include "screen_model.h"
 #include "screen_controller.h"
 #include "screen_view.h"
@@ -26,7 +25,7 @@ extern "C" void app_main()
 
     // esp_log_set_vprintf(esp_apptrace_vprintf);
     ESP_LOGI(TAG, "Program start...");
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    
     ESP_ERROR_CHECK(gpio_install_isr_service(0));
     
 
@@ -94,37 +93,17 @@ extern "C" void app_main()
     backlight->set_fade_time(500);
     backlight->fade_to(0x80);
     ViewBase16x2::assignBacklight(backlight);
-    // lcd.begin(numCols, numRows);
-    //Screen<LiquidCrystalGPIO*> screen{lcd,lcd_dimmer};  // 
-    // screen.set_backlight_gpio(lcd_dimmer);
-    //screen.fade_backlight_to(0xff);
-    //screen.change_view(ScreenBase::screen_views::CLOCK_WELCOME);
-    //screen.start();
-    //screen.update();
+
+
     Timer timer;
     timer.set_alarm_value(122);
-    //screen.pass_timer_to_task(&timer);
-    // ScreenModel* model= new ScreenModel{};
-    //model->put_new_entry(ScreenModelEntry::ENTRY_STARTUP,CONFIG_SCREEN_STARTUP_MESSAGE);
 
-    // ViewBase::model.put_new_entry(ScreenModelEntry::ENTRY_STARTUP,CONFIG_SCREEN_STARTUP_MESSAGE);
-    // model->put_new_entry(ScreenModelEntry::ENTRY_PRIMARY_TIMER,
-    //    timer.get_remainder_as_clock(TIMER_0).to_string(true,' ').c_str());
 
     ScreenController controller{};
     controller.change_view(ScreenController::CLOCK_WELCOME);
-    // controller.model
-    
-    
-    //model->put_new_entry(ScreenModelEntry::ENTRY_STARTUP,"BAJS");
 
-    
-    //ViewBase16x2* view = new View16x2Start{};
-    //view->update();
-    //delete view;
     vTaskDelay(1000 / portTICK_PERIOD_MS);
-    //view = new View16x2SimpleClock{};
-    //view->update();
+
     controller.change_view(ScreenController::CLOCK_SHOW_TIMER);
     // Button init 
     gpio_num_t btn_1 = GPIO_NUM_27;
