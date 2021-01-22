@@ -91,7 +91,7 @@ extern "C" void app_main()
     ViewBase16x2::assignLcd(lcd);
     LcdBacklight * backlight = new LcdBacklight{lcd_dimmer};
     backlight->set_fade_time(500);
-    backlight->fade_to(0x80);
+    backlight->fade_to(0xFf);
     ViewBase16x2::assignBacklight(backlight);
 
 
@@ -138,6 +138,7 @@ extern "C" void app_main()
                     ESP_LOGI(TAG, "btn_1 rising edge");
                     // lcd.write('R');
                     //screen.change_view(ScreenBase::screen_views::CLOCK_SHOW_TIMER);
+                    timer.pause();
                 }
                 else if (btn_ev.event == BUTTON_FALLING_EDGE){
                     ESP_LOGI(TAG, "btn_1 short press falling edge");
@@ -179,7 +180,6 @@ extern "C" void app_main()
                 if (btn_ev.event == BUTTON_RISING_EDGE){
                     ESP_LOGI(TAG, "btn_3 rising edge");
                     
-                    timer.pause();
                     // lcd.write('R');
                 }
                 else if (btn_ev.event == BUTTON_FALLING_EDGE){
@@ -216,7 +216,7 @@ extern "C" void app_main()
                 }
             }
         }
-        //xQueueReceive(button_event_queue, ev,0);
+        
         while (xQueueReceive(rotary_encoder_event_queue, &rot_ev,1) == pdPASS){
             //ESP_LOGI(TAG,"%i",rot_ev.state.position);
             // Make sure there is more than 10 ms between the different events to make 
@@ -291,9 +291,9 @@ extern "C" void app_main()
             timer.change_alarm_value(conv);
         
         } 
-        
+        /*
         while (xQueueReceive(timer.get_queue_handle(), &timer_event,1) == pdPASS){
-            /* Print information that the timer reported an event */
+            // Print information that the timer reported an event 
             if (timer_event.type == 1) {
                 printf("\n    Example timer without reload\n");
             } else if (timer_event.type == 0) {
@@ -303,21 +303,22 @@ extern "C" void app_main()
             }
             printf("Group[%d], timer[%d] alarm event\n", timer_event.timer_group, timer_event.timer_idx);
 
-            /* Print the timer values passed by event */
+            // Print the timer values passed by event 
             //printf("------- EVENT TIME --------\n");
             //print_timer_counter(timer_event.timer_counter_value);
 
-            /* Print the timer values as visible by this task */
+            // Print the timer values as visible by this task 
             //printf("-------- TASK TIME --------\n");
             //uint64_t task_counter_value;
             //timer_get_counter_value(timer_event.timer_group, timer_event.timer_idx, &task_counter_value);
             //print_timer_counter(task_counter_value);
         }
+        */
         //ESP_LOGI("H","%f",timer.get_remainder_as_double(TIMER_0));
         //screen.update(&timer);
         controller.handle_event_timer(&timer);
         controller.update();
-        vTaskDelay(10 / portTICK_PERIOD_MS);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 
     ESP_ERROR_CHECK(rotary_encoder_uninit(&rotary_encoder_info));

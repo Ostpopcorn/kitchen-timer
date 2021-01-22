@@ -16,15 +16,23 @@ typedef struct {
     uint64_t timer_counter_value;
 } timer_event_t;
 
+typedef struct {
+    int id{0};
+    char name[6]{};
+    int t_start{0};
+    int target_time{0};
+} timer_info_t ;
+
 #define GENERAT_TIMER_EVENT_T {.timer_group = TIMER_GROUP_MAX, .timer_idx  = TIMER_MAX, .timer_counter_value = 0}
 
 class Timer{
-    timer_idx_t timer_idx = TIMER_0;
-    xQueueHandle queue_handle;
-    void init();
+private:
+    static const int max_timers{16};
+    int64_t t_0{esp_timer_get_time()};
+    timer_info_t timers[max_timers];
+
 public:
     Timer();
-    xQueueHandle get_queue_handle();
     void set_alarm_value(double timer_interval_sec);
     void set_alarm_value(Clock timer_interval_sec);
     void change_alarm_value(int seconds);
