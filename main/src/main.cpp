@@ -14,6 +14,8 @@
 #include "Sound.h"
 #include "Screen.h"
 #include "screen_model.h"
+#include "screen_controller.h"
+#include "screen_view.h"
 #include "timer_class.h"
 #include "LiquidCrystalGPIO.h"
 
@@ -24,12 +26,11 @@ extern "C" void app_main()
 
     // esp_log_set_vprintf(esp_apptrace_vprintf);
     ESP_LOGI(TAG, "Program start...");
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
     ESP_ERROR_CHECK(gpio_install_isr_service(0));
     
-    ScreenModel a{};
-    
-    a.put_new_entry(ScreenModelEntry::ENTRY_STARTUP,CONFIG_SCREEN_STARTUP_MESSAGE);
 
+    
     gpio_num_t enable_5V_pin = GPIO_NUM_23;
     gpio_num_t battery_monitor_enable_pin = GPIO_NUM_32;
     
@@ -84,20 +85,34 @@ extern "C" void app_main()
     gpio_num_t lcd_d7 = GPIO_NUM_16;
 
 
-    LiquidCrystalGPIO* lcd = new LiquidCrystalGPIO(LiquidCrystal::bit_mode::FOUR_BIT 
+    LiquidCrystalGPIO* lcd= new LiquidCrystalGPIO{LiquidCrystal::bit_mode::FOUR_BIT 
                     ,lcd_rs,lcd_rw,lcd_en,
                     lcd_d4,lcd_d5,lcd_d6,lcd_d7,
-                    GPIO_NUM_NC,GPIO_NUM_NC,GPIO_NUM_NC,GPIO_NUM_NC);
+                    GPIO_NUM_NC,GPIO_NUM_NC,GPIO_NUM_NC,GPIO_NUM_NC};
     // lcd.begin(numCols, numRows);
-    Screen<LiquidCrystalGPIO*> screen{lcd,lcd_dimmer};  // 
+    //Screen<LiquidCrystalGPIO*> screen{lcd,lcd_dimmer};  // 
     // screen.set_backlight_gpio(lcd_dimmer);
-    screen.fade_backlight_to(0xff);
-    screen.change_view(ScreenBase::screen_views::CLOCK_WELCOME);
-    screen.start();
+    //screen.fade_backlight_to(0xff);
+    //screen.change_view(ScreenBase::screen_views::CLOCK_WELCOME);
+    //screen.start();
     //screen.update();
     Timer timer;
     timer.set_alarm_value(122);
-    screen.pass_timer_to_task(&timer);
+    //screen.pass_timer_to_task(&timer);
+    
+    ViewBase::model.put_new_entry(ScreenModelEntry::ENTRY_STARTUP,CONFIG_SCREEN_STARTUP_MESSAGE);
+    ViewBase::model.put_new_entry(ScreenModelEntry::ENTRY_PRIMARY_TIMER,
+        timer.get_remainder_as_clock(TIMER_0).to_string(true,' ').c_str());
+
+    ViewBase16x2::assignLcd(lcd);
+    vTaskDelay(50 / portTICK_PERIOD_MS);
+    
+    ViewBase16x2* view = new View16x2Start{};
+    view->update();
+    delete view;
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    view = new View16x2SimpleClock{};
+    view->update();
 
     // Button init 
     gpio_num_t btn_1 = GPIO_NUM_27;
@@ -131,7 +146,7 @@ extern "C" void app_main()
                 if (btn_ev.event == BUTTON_RISING_EDGE){
                     ESP_LOGI(TAG, "btn_1 rising edge");
                     // lcd.write('R');
-                    screen.change_view(ScreenBase::screen_views::CLOCK_SHOW_TIMER);
+                    //screen.change_view(ScreenBase::screen_views::CLOCK_SHOW_TIMER);
                 }
                 else if (btn_ev.event == BUTTON_FALLING_EDGE){
                     ESP_LOGI(TAG, "btn_1 short press falling edge");

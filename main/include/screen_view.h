@@ -8,8 +8,9 @@
 class ViewBase
 {
 protected:
-    ScreenModel model{};
+    
 public:
+    static ScreenModel model;
     ViewBase();
     ViewBase(ScreenModel & model);
     virtual ~ViewBase();
@@ -22,17 +23,18 @@ class ViewBase16x2 : public ViewBase
 {
 private:
     void init();
+    static const int numRows{2};
+    static const int numCols{16};
 protected:
-    static LiquidCrystal lcd;
-    static char current_screen[32];
+    static LiquidCrystal* lcd;
+    static char current_screen[];
+    void write_text_on_screen(const std::string & to_print, uint8_t row, uint8_t col);
     
 public:
     ViewBase16x2();
-    ViewBase16x2(ScreenModel & model);
     virtual ~ViewBase16x2();
 
-    void assignLcd(LiquidCrystal &);
-    
+    static void assignLcd(LiquidCrystal *);
     void set_backlight_gpio(gpio_num_t gpio);
 };
 
@@ -44,8 +46,18 @@ protected:
 
 public:
     View16x2Start();
-    View16x2Start(ScreenModel & model);
     virtual ~View16x2Start();
+    virtual void update() override;
+};
+
+
+class View16x2SimpleClock : public ViewBase16x2
+{
+protected:
+
+public:
+    View16x2SimpleClock();
+    virtual ~View16x2SimpleClock();
     virtual void update() override;
 };
 
