@@ -14,11 +14,12 @@ protected:
         JUSTIFY_LEFT = 5,
         JUSTIFY_CENTER,
         JUSTIFY_RIGHT
-    }justify_t;
+    } justify_t;
 public:
-    static ScreenModel model;
+    static ScreenModel* model;
+    static void assing_model(ScreenModel* new_model);
+    bool has_model();
     ViewBase();
-    ViewBase(ScreenModel & model);
     virtual ~ViewBase();
     virtual void update();
 };

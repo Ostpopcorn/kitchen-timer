@@ -13,7 +13,10 @@ char ViewBase16x2::current_screen[33];
 
 ViewBase16x2::ViewBase16x2()
 {
-
+    if(lcd != NULL){
+        lcd->clear();
+        vTaskDelay(10 / portTICK_PERIOD_MS);
+    }
 }
 
 
@@ -33,8 +36,8 @@ void ViewBase16x2::assignLcd(LiquidCrystal* new_lcd)
     lcd = new_lcd;
     lcd = lcd;
     lcd->begin(numCols, numRows);
-    vTaskDelay(50 / portTICK_PERIOD_MS);
-    lcd->clear();
+    //vTaskDelay(50 / portTICK_PERIOD_MS);
+    //lcd->clear();
 }
 
 void ViewBase16x2::assignBacklight(LcdBacklight * lcd_backlight){
