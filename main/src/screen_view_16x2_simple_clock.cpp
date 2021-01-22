@@ -6,7 +6,6 @@ View16x2SimpleClock::View16x2SimpleClock()
 {
 }
 
-
 View16x2SimpleClock::~View16x2SimpleClock()
 {
 }
@@ -15,10 +14,13 @@ void View16x2SimpleClock::update()
 {
     //
     // timer->get_remainder_as_clock(TIMER_0).to_string(true,' ').c_str()
-    std::string message = model.get_entry_string(ScreenModelEntry::ENTRY_PRIMARY_TIMER);
-    if (message == ""){
-        return;
-    }
+    write_text_on_screen(model.get_entry_string(ScreenModelEntry::ENTRY_PRIMARY_TIMER),
+                         0,7,ViewBase::JUSTIFY_CENTER);
+    write_text_on_screen(model.get_entry_string(ScreenModelEntry::ENTRY_START),
+                         1,4,ViewBase::JUSTIFY_CENTER);
+    write_text_on_screen(model.get_entry_string(ScreenModelEntry::ENTRY_STOP),
+                         1,11,ViewBase::JUSTIFY_CENTER);
+    /*
     int start_offset = 4;
     int print_len_max = 8;
     int print_len = message.length()>print_len_max?print_len_max:message.length();
@@ -35,4 +37,5 @@ void View16x2SimpleClock::update()
         current_screen[i+start_offset] = message[i]; 
     }
     ESP_LOGI(TAG,"U %s",current_screen);
+    */
 }

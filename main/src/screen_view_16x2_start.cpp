@@ -1,7 +1,9 @@
 #include "screen_view.h"
 #include "string.h"
 #include "esp_log.h"
+
 #define TAG "SVIEW"
+
 View16x2Start::View16x2Start()
 {
 }
@@ -15,6 +17,8 @@ void View16x2Start::update()
 {
     //
     std::string message = model.get_entry_string(ScreenModelEntry::ENTRY_STARTUP);
+    write_text_on_screen(message,0,2,ViewBase::JUSTIFY_LEFT);
+    /*
     int print_len = message.length()>16?16:message.length();
     if (memcmp(message.c_str(),current_screen,print_len)==0){
         ESP_LOGI(TAG,"O %s",current_screen);
@@ -29,4 +33,5 @@ void View16x2Start::update()
         current_screen[i] = message[i]; 
     }
     ESP_LOGI(TAG,"U %s",current_screen);
+    */
 }

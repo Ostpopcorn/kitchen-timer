@@ -8,7 +8,12 @@
 class ViewBase
 {
 protected:
-    
+    typedef enum {
+        JUSTIFY_NONE = 0,
+        JUSTIFY_LEFT = 5,
+        JUSTIFY_CENTER,
+        JUSTIFY_RIGHT
+    }justify_t;
 public:
     static ScreenModel model;
     ViewBase();
@@ -28,8 +33,8 @@ private:
 protected:
     static LiquidCrystal* lcd;
     static char current_screen[];
-    void write_text_on_screen(const std::string & to_print, uint8_t row, uint8_t col);
-    
+    void write_text_on_screen(const std::string & to_print, int row, int col, justify_t alignment);
+
 public:
     ViewBase16x2();
     virtual ~ViewBase16x2();

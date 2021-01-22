@@ -1,7 +1,7 @@
 #ifndef TIMER_SCREENMODEL_H
 #define TIMER_SCREENMODEL_H
 
-#include <string>
+#include "string.h"
 #include <map>
 
 
@@ -9,9 +9,13 @@ class ScreenModelEntry{
 public:
     typedef enum{
         ENTRY_NON=0,
-        ENTRY_YES =1,
+        
+        ENTRY_STARTUP = 2,
+
+        ENTRY_YES =10,
         ENTRY_NO,
-        ENTRY_STARTUP = 10,
+        ENTRY_START,
+        ENTRY_STOP,
         ENTRY_PRIMARY_TIMER = 100,
     } model_entry_types_t;
     ScreenModelEntry();
@@ -48,7 +52,7 @@ public:
 private:
     ScreenModelEntry &get_entry(ScreenModelEntry::model_entry_types_t);
     std::map<ScreenModelEntry::model_entry_types_t,ScreenModelEntry> all_entries{};
-public:
+protected:
     ScreenModelEntry empty{};
 };
 

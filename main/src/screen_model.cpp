@@ -66,6 +66,8 @@ ScreenModelEntry &ScreenModel::get_entry(ScreenModelEntry::model_entry_types_t i
 ScreenModel::ScreenModel(){
     all_entries.insert({ScreenModelEntry::ENTRY_YES,ScreenModelEntry{ScreenModelEntry::ENTRY_YES,"Yes"}});
     all_entries.insert({ScreenModelEntry::ENTRY_NO, ScreenModelEntry{ScreenModelEntry::ENTRY_NO,"No"}});                                 
+    all_entries.insert({ScreenModelEntry::ENTRY_START, ScreenModelEntry{ScreenModelEntry::ENTRY_START,"Start"}});                                 
+    all_entries.insert({ScreenModelEntry::ENTRY_STOP, ScreenModelEntry{ScreenModelEntry::ENTRY_STOP,"Stop"}});                                 
     
 }
 
