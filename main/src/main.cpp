@@ -95,8 +95,17 @@ extern "C" void app_main()
     ViewBase16x2::assignBacklight(backlight);
 
 
-    Timer timer;
-    timer.set_alarm_value(122);
+    TimerContainer timer;
+    timer.get_primary_timer()->set_alarm_value(122);
+    timer.register_callback((TimerContainer::timer_id_t) 1,TimerContainer::EVENT_TYPE_START,[](TimerContainer::timer_event_t const timer_event)
+    {
+        ESP_LOGI("CB","Callback timer start. name: %s",(*timer_event.timer_info).get_name().c_str());
+    });
+    timer.register_callback((TimerContainer::timer_id_t) 1,TimerContainer::EVENT_TYPE_STOP,[](TimerContainer::timer_event_t const timer_event)
+    {
+        ESP_LOGI("CB","Callback timer stop. name: %s",(*timer_event.timer_info).get_name().c_str());
+       
+    });
 
 
     ScreenController controller{};
@@ -118,7 +127,7 @@ extern "C" void app_main()
 
     button_event_t btn_ev = GENERATE_BUTTON_EVENT_T;
     rotary_encoder_event_t rot_ev = GENERAT_ROTARY_ENCODER_EVENT_T;
-    timer_event_t timer_event = GENERAT_TIMER_EVENT_T;
+    // timer_event_t timer_event = GENERAT_TIMER_EVENT_T;
     // xQueueHandle timer_queue = timer.get_queue_handle();
 
     int32_t mem_len = 32;
@@ -138,7 +147,7 @@ extern "C" void app_main()
                     ESP_LOGI(TAG, "btn_1 rising edge");
                     // lcd.write('R');
                     //screen.change_view(ScreenBase::screen_views::CLOCK_SHOW_TIMER);
-                    timer.pause();
+                    timer.get_primary_timer()->pause();
                 }
                 else if (btn_ev.event == BUTTON_FALLING_EDGE){
                     ESP_LOGI(TAG, "btn_1 short press falling edge");
@@ -158,7 +167,7 @@ extern "C" void app_main()
                 // lcd.setCursor(2, 1);
                 if (btn_ev.event == BUTTON_RISING_EDGE){
                     ESP_LOGI(TAG, "btn_2 rising edge");
-                    timer.start();
+                    timer.get_primary_timer()->start();
                     // lcd.write('R');
                 }
                 else if (btn_ev.event == BUTTON_FALLING_EDGE){
@@ -288,7 +297,7 @@ extern "C" void app_main()
             }
             printf("change %i, conv %f\n",rot_enc_change,conv);
 
-            timer.change_alarm_value(conv);
+            timer.get_primary_timer()->change_alarm_value(conv);
         
         } 
         /*

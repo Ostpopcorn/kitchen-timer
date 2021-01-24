@@ -38,8 +38,8 @@ void ScreenController::change_view(screen_views_t new_view){
     }
     update();
 }
-void ScreenController::handle_event_timer(Timer* timer)
+void ScreenController::handle_event_timer(TimerContainer* timer)
 {
     model->put_new_entry(ScreenModelEntry::ENTRY_PRIMARY_TIMER,
-          timer->get_remainder_as_clock(TIMER_0).to_string(true,' ').c_str());
+          timer->get_primary_timer()->get_remainder_as_clock().to_string(true,' ').c_str());
 }

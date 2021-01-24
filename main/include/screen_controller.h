@@ -22,7 +22,7 @@ public:
     void handleEvent();
     void change_view(screen_views_t new_view);
     void update();
-    void handle_event_timer(Timer* timer);
+    void handle_event_timer(TimerContainer* timer);
 };
 
 
