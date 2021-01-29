@@ -49,11 +49,11 @@ void ScreenController::handle_event_battery(Battery* battery)
     /*
     memcpy(text,battery->get_last_mesurement_as_string().c_str(),5);
     */
-    uint32_t val = battery->get_last_mesurement();
-    text[0] = (val/1000)%10;
+    int val = battery->get_last_mesurement();
+    text[0] = '0'+(val/1000)%10;
     text[1] = ':';
-    text[2] = (val/100)%10;
-    text[3] = (val/10)%10;
-    text[4] = '\n';
+    text[2] = '0'+(val/100)%10;
+    text[3] = '0'+(val/10)%10;
+    text[4] = '\0';
     model->put_new_entry(ScreenModelEntry::ENTRY_BATTERY_VOLTAGE,text);
 }

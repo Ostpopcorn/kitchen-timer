@@ -2,6 +2,7 @@
 #define ESP_TIMER_CLASS_H
 
 #include "esp_types.h"
+#include <functional>
 #include "clock.h"
 #include "string.h"
 #include "esp_timer.h"
@@ -25,7 +26,8 @@ public:
         TimerContainer::timer_event_type_t event_type;
     };
     
-    typedef void (*alarm_callback_t)(struct timer_event_t const);
+    //typedef void (*alarm_callback_t)(struct timer_event_t const);
+    typedef std::function<void(struct timer_event_t)> alarm_callback_t;
 
     class Timer{
     private:

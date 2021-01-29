@@ -40,7 +40,8 @@ extern "C" void app_main()
 
     gpio_num_t battery_monitor_analog_pin = GPIO_NUM_33; 
     adc1_channel_t battery_monitor_analog_adc1_channel = ADC1_CHANNEL_5;
-    Battery battery_monitor{battery_monitor_analog_adc1_channel,battery_monitor_enable_pin};
+
+    Battery* battery_monitor = new Battery{battery_monitor_analog_adc1_channel,battery_monitor_enable_pin};
 
     //adc1_config_width(ADC_WIDTH_BIT_12);
     //adc1_config_channel_atten(battery_monitor_analog_adc1_channel,ADC_ATTEN_DB_11);
@@ -49,7 +50,10 @@ extern "C" void app_main()
     gpio_num_t ws2812b_data_pin = GPIO_NUM_2;
     gpio_num_t lcd_dimmer = GPIO_NUM_4;
     uint64_t pin_mask_ctrl = (1ULL<<enable_5V_pin) | 
+                             //(1ULL<<battery_monitor_enable_pin)| 
+                             //(1ULL<<lcd_dimmer) |
                              (1ULL<<ws2812b_data_pin) 
+                             ;
 
     gpio_config_t io_conf = {
         .pin_bit_mask = pin_mask_ctrl,
@@ -61,6 +65,7 @@ extern "C" void app_main()
     gpio_config(&io_conf);
     gpio_set_level(enable_5V_pin, 1);
     //gpio_set_level(lcd_dimmer, 1);
+    // gpio_set_level(battery_monitor_enable_pin, 1);
     
     // Create the queues for handling events
     QueueHandle_t button_event_queue = button_create_queue();
@@ -77,7 +82,6 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(rotary_encoder_set_queue(&rotary_encoder_info, rotary_encoder_event_queue));
 
     //Sound sound{};    // Need to init this before the buttons in order to have btn_2 work since it uses DAC_2 pin
-
 
     ESP_LOGI(TAG, "Starting screen");
     // LCD init 
@@ -97,34 +101,39 @@ extern "C" void app_main()
                     GPIO_NUM_NC,GPIO_NUM_NC,GPIO_NUM_NC,GPIO_NUM_NC};
     ViewBase16x2::assignLcd(lcd);
     LcdBacklight * backlight = new LcdBacklight{lcd_dimmer};
-    backlight->set_fade_time(500);
-    backlight->fade_to(0xFf);
+    backlight->set_fade_time(1000);
+    backlight->fade_to(0xff);
     ViewBase16x2::assignBacklight(backlight);
 
+    ScreenController* controller = new ScreenController{};
+    controller->change_view(ScreenController::CLOCK_WELCOME);
+    
 
-    TimerContainer timer;
-    timer.get_primary_timer()->set_alarm_value(122);
-    timer.register_callback((TimerContainer::timer_id_t) 1,TimerContainer::EVENT_TYPE_START,[](TimerContainer::timer_event_t const timer_event)
+    TimerContainer* timer = new TimerContainer{};
+    timer->get_primary_timer()->set_alarm_value(122);
+    /*
+    */
+    timer->register_callback((TimerContainer::timer_id_t) 1,TimerContainer::EVENT_TYPE_START,[](TimerContainer::timer_event_t const timer_event)
     {
         ESP_LOGI("CB","Callback timer start. name: %s",(*timer_event.timer_info).get_name().c_str());
     });
-    timer.register_callback((TimerContainer::timer_id_t) 1,TimerContainer::EVENT_TYPE_STOP,[](TimerContainer::timer_event_t const timer_event)
+
+    timer->register_callback((TimerContainer::timer_id_t) 1,TimerContainer::EVENT_TYPE_STOP,[](TimerContainer::timer_event_t const timer_event)
     {
         ESP_LOGI("CB","Callback timer stop. name: %s",(*timer_event.timer_info).get_name().c_str());
        
     });
 
+    battery_monitor->register_callback([controller](Battery* battery){
+        controller->handle_event_battery(battery);
+        ESP_LOGI("CB","BATTERY.");
+    });
 
-    ScreenController controller{};
-    controller.change_view(ScreenController::CLOCK_WELCOME);
-    
+
     // [captures list, vad den känner till utifrån, &](parametrar in till funktionen){kroppen};
     
-    battery_monitor.register_callback([](Battery* battery){
-         
-    });
     //battery_monitor.register_callback([&controller](Battery* battery){
-    //    controller.handle_event_battery(battery);
+    //    controller->handle_event_battery(battery);
     //});
 
     // Button init 
@@ -150,7 +159,7 @@ extern "C" void app_main()
 
     ESP_LOGI(TAG,"Setup done!");
 
-    battery_monitor.measure();
+    battery_monitor->measure();
 
     while (1)
     {
@@ -162,7 +171,7 @@ extern "C" void app_main()
                     ESP_LOGI(TAG, "btn_1 rising edge");
                     // lcd.write('R');
                     //screen.change_view(ScreenBase::screen_views::CLOCK_SHOW_TIMER);
-                    timer.get_primary_timer()->pause();
+                    timer->get_primary_timer()->pause();
                 }
                 else if (btn_ev.event == BUTTON_FALLING_EDGE){
                     ESP_LOGI(TAG, "btn_1 short press falling edge");
@@ -182,7 +191,7 @@ extern "C" void app_main()
                 // lcd.setCursor(2, 1);
                 if (btn_ev.event == BUTTON_RISING_EDGE){
                     ESP_LOGI(TAG, "btn_2 rising edge");
-                    timer.get_primary_timer()->start();
+                    timer->get_primary_timer()->start();
                     // lcd.write('R');
                 }
                 else if (btn_ev.event == BUTTON_FALLING_EDGE){
@@ -224,7 +233,7 @@ extern "C" void app_main()
                 // lcd.setCursor(4, 1);
                 if (btn_ev.event == BUTTON_RISING_EDGE){
                     ESP_LOGI(TAG, "rot_enc_btn_gpio rising edge");
-                    controller.change_view(ScreenController::CLOCK_SHOW_TIMER);
+                    controller->change_view(ScreenController::CLOCK_SHOW_TIMER);
                     // lcd.write('R');
                 }
                 else if (btn_ev.event == BUTTON_FALLING_EDGE){
@@ -313,7 +322,7 @@ extern "C" void app_main()
             }
             printf("change %i, conv %f\n",rot_enc_change,conv);
 
-            timer.get_primary_timer()->change_alarm_value(conv);
+            timer->get_primary_timer()->change_alarm_value(conv);
         
         } 
         /*
@@ -341,8 +350,8 @@ extern "C" void app_main()
         */
         //ESP_LOGI("H","%f",timer.get_remainder_as_double(TIMER_0));
         //screen.update(&timer);
-        controller.handle_event_timer(&timer);
-        controller.update();
+        controller->handle_event_timer(timer);
+        controller->update();
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 

@@ -1,4 +1,6 @@
 #include "battery_monitor.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
 #include "string.h"
@@ -119,13 +121,12 @@ void Battery::measure()
     int adc_reading{};
 
     enable_monitor();
+    // vTaskDelay(1 / portTICK_PERIOD_MS);
     for (size_t i = 0; i < number_of_sample; i++)
     {
         adc_reading += adc1_get_raw(analog_1_channel);
     }
     disable_monitor();
-
-    printf("Read: %i\n", adc_reading);
 
     if(adc_reading == 0){
         return;
@@ -134,8 +135,8 @@ void Battery::measure()
 
 
     int voltage = static_cast<int>(esp_adc_cal_raw_to_voltage(adc_reading, adc_chars));
+    set_last_mesurement(voltage);
 
-    last_measure = voltage;
     if(callback != NULL){
         callback(this);
     }
@@ -148,6 +149,11 @@ int Battery::get_last_mesurement()
     return last_measure;
 }
 
+void Battery::set_last_mesurement(int new_value){
+    // Here the voltage divider is considerated
+    last_measure = ((new_value)*voltage_divider_factor);
+
+}
 /* 
 std::string Battery::get_last_mesurement_as_string() 
 {

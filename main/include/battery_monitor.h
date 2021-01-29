@@ -5,17 +5,20 @@
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
 #include "string.h"
+#include <functional>
 
 class Battery
 {
 public:
-    typedef void (*battery_callback_t)(Battery*);
+    typedef std::function<void(Battery*)> battery_callback_t;
+    // typedef void (*battery_callback_t)(Battery*);
 private:
     const int number_of_sample{10};
     const int default_vref{1100};
     const adc_unit_t unit{ADC_UNIT_1};
     const adc_atten_t atten{ADC_ATTEN_DB_11};
     const adc_bits_width_t width{ADC_WIDTH_BIT_12};
+    const int voltage_divider_factor{2};
     esp_adc_cal_characteristics_t *adc_chars{NULL};
 
     adc1_channel_t analog_1_channel{ADC1_CHANNEL_MAX};
@@ -25,6 +28,7 @@ private:
     battery_callback_t callback{NULL};
     void set_pins(adc1_channel_t battery_analog_1_channel,gpio_num_t battery_monitor_enable);
     int last_measure{0};
+    void set_last_mesurement(int);
 
 public:
     Battery();
