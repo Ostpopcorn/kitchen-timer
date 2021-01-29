@@ -18,25 +18,34 @@
 #include "timer_class.h"
 #include "LiquidCrystalGPIO.h"
 
+#include "battery_monitor.h"
+
 #define TAG "MAIN"
 
 extern "C" void app_main()
 {
 
     // esp_log_set_vprintf(esp_apptrace_vprintf);
-    ESP_LOGI(TAG, "Program start...");
     
+    ESP_LOGI(TAG, "Soon...");
+    // vTaskDelay(5000 / portTICK_PERIOD_MS);
+    ESP_LOGI(TAG, "Program start...");
     ESP_ERROR_CHECK(gpio_install_isr_service(0));
     
 
-    
     gpio_num_t enable_5V_pin = GPIO_NUM_23;
-    gpio_num_t battery_monitor_enable_pin = GPIO_NUM_32;
     
     // Need both ADC channel and GPIO NUM
+    gpio_num_t battery_monitor_enable_pin = GPIO_NUM_32;
+
     gpio_num_t battery_monitor_analog_pin = GPIO_NUM_33; 
     adc1_channel_t battery_monitor_analog_adc1_channel = ADC1_CHANNEL_5;
+    Battery battery_monitor{battery_monitor_analog_adc1_channel,battery_monitor_enable_pin};
 
+    //adc1_config_width(ADC_WIDTH_BIT_12);
+    //adc1_config_channel_atten(battery_monitor_analog_adc1_channel,ADC_ATTEN_DB_11);
+    
+    
     gpio_num_t ws2812b_data_pin = GPIO_NUM_2;
     gpio_num_t lcd_dimmer = GPIO_NUM_4;
     uint64_t pin_mask_ctrl = (1ULL<<enable_5V_pin) | 
@@ -54,6 +63,7 @@ extern "C" void app_main()
     gpio_config(&io_conf);
     gpio_set_level(enable_5V_pin, 1);
     gpio_set_level(lcd_dimmer, 1);
+    gpio_set_level(battery_monitor_enable_pin, 1);
     
     // Create the queues for handling events
     QueueHandle_t button_event_queue = button_create_queue();
@@ -110,10 +120,16 @@ extern "C" void app_main()
 
     ScreenController controller{};
     controller.change_view(ScreenController::CLOCK_WELCOME);
+    
+    // [captures list, vad den känner till utifrån, &](parametrar in till funktionen){kroppen};
+    
+    battery_monitor.register_callback([](Battery* battery){
+         
+    });
+    //battery_monitor.register_callback([&controller](Battery* battery){
+    //    controller.handle_event_battery(battery);
+    //});
 
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-
-    controller.change_view(ScreenController::CLOCK_SHOW_TIMER);
     // Button init 
     gpio_num_t btn_1 = GPIO_NUM_27;
     gpio_num_t btn_2 = GPIO_NUM_26;
@@ -136,6 +152,8 @@ extern "C" void app_main()
     prev_rot_enc_time[0] = 0;
 
     ESP_LOGI(TAG,"Setup done!");
+
+    battery_monitor.measure();
 
     while (1)
     {
@@ -209,6 +227,7 @@ extern "C" void app_main()
                 // lcd.setCursor(4, 1);
                 if (btn_ev.event == BUTTON_RISING_EDGE){
                     ESP_LOGI(TAG, "rot_enc_btn_gpio rising edge");
+                    controller.change_view(ScreenController::CLOCK_SHOW_TIMER);
                     // lcd.write('R');
                 }
                 else if (btn_ev.event == BUTTON_FALLING_EDGE){

@@ -4,6 +4,7 @@
 #include "screen_model.h"
 #include "screen_view.h"
 #include "timer_class.h"
+#include "battery_monitor.h"
 
 class ScreenController
 {
@@ -23,6 +24,7 @@ public:
     void change_view(screen_views_t new_view);
     void update();
     void handle_event_timer(TimerContainer* timer);
+    void handle_event_battery(Battery* battery);
 };
 
 

@@ -19,6 +19,13 @@ void View16x2Start::update()
     std::string message = model->get_entry_string(ScreenModelEntry::ENTRY_STARTUP);
     write_text_on_screen(message,0,2,ViewBase::JUSTIFY_LEFT);
 
+    write_text_on_screen("BAT:",
+                        1,9,ViewBase::JUSTIFY_RIGHT);
+    write_text_on_screen(model->get_entry_string(ScreenModelEntry::ENTRY_BATTERY_VOLTAGE),
+                        1,10,ViewBase::JUSTIFY_LEFT);
+    write_text_on_screen("V",
+                        1,14,ViewBase::JUSTIFY_LEFT);
+
     if(has_backlight()){
         backlight->fade_to(127);
     }
