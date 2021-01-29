@@ -15,6 +15,14 @@ LcdBacklight::~LcdBacklight()
 
 void LcdBacklight::set_gpio(gpio_num_t gpio){
     backlight_led = gpio;
+    gpio_config_t io_conf = {
+        .pin_bit_mask = (1ULL<<backlight_led),
+        .mode = GPIO_MODE_OUTPUT,
+        .pull_up_en = GPIO_PULLUP_DISABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_DISABLE,
+    };
+
     ledc_timer.speed_mode = LEDC_LOW_SPEED_MODE;           // timer mode
     ledc_timer.duty_resolution = LEDC_TIMER_8_BIT; // resolution of PWM duty
     ledc_timer.timer_num = LEDC_TIMER_1;            // timer index
@@ -41,7 +49,7 @@ void LcdBacklight::set_fade_time(uint32_t new_fade_time){
     fade_time = new_fade_time;
 }
 
-void LcdBacklight::fade_to(uint32_t value){
+void LcdBacklight::fade_to(uint8_t value){
     ledc_set_fade_with_time(ledc_channel.speed_mode,
             ledc_channel.channel, value, fade_time);
     ledc_fade_start(ledc_channel.speed_mode,

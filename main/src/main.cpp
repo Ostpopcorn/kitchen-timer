@@ -49,9 +49,7 @@ extern "C" void app_main()
     gpio_num_t ws2812b_data_pin = GPIO_NUM_2;
     gpio_num_t lcd_dimmer = GPIO_NUM_4;
     uint64_t pin_mask_ctrl = (1ULL<<enable_5V_pin) | 
-                             (1ULL<<battery_monitor_enable_pin)| 
-                             (1ULL<<ws2812b_data_pin)| 
-                             (1ULL<<lcd_dimmer);
+                             (1ULL<<ws2812b_data_pin) 
 
     gpio_config_t io_conf = {
         .pin_bit_mask = pin_mask_ctrl,
@@ -62,8 +60,7 @@ extern "C" void app_main()
     };
     gpio_config(&io_conf);
     gpio_set_level(enable_5V_pin, 1);
-    gpio_set_level(lcd_dimmer, 1);
-    gpio_set_level(battery_monitor_enable_pin, 1);
+    //gpio_set_level(lcd_dimmer, 1);
     
     // Create the queues for handling events
     QueueHandle_t button_event_queue = button_create_queue();
