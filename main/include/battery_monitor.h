@@ -8,6 +8,8 @@
 
 class Battery
 {
+public:
+    typedef void (*battery_callback_t)(Battery*);
 private:
     const int number_of_sample{10};
     const int default_vref{1100};
@@ -20,7 +22,7 @@ private:
     gpio_num_t monitor_enable_pin{GPIO_NUM_NC};
     void enable_monitor();
     void disable_monitor();
-    void (*callback)(Battery* const timer_event){NULL};
+    battery_callback_t callback{NULL};
     void set_pins(adc1_channel_t battery_analog_1_channel,gpio_num_t battery_monitor_enable);
     int last_measure{0};
 
@@ -28,7 +30,7 @@ public:
     Battery();
     Battery(adc1_channel_t battery_analog_1_channel,gpio_num_t battery_monitor_enable);
     ~Battery();
-    void register_callback(void (*new_callback)(Battery* timer_event));
+    void register_callback(battery_callback_t new_callback);
     void measure();
     int get_last_mesurement();
     // std::string get_last_mesurement_as_string();

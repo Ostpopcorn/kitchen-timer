@@ -18,13 +18,14 @@ public:
     }timer_event_type_t;
 
     typedef uint8_t timer_id_t;
-
     class Timer;
 
     struct timer_event_t {
-        Timer* timer_info;
-        timer_event_type_t event_type;
+        TimerContainer::Timer* timer_info;
+        TimerContainer::timer_event_type_t event_type;
     };
+    
+    typedef void (*alarm_callback_t)(struct timer_event_t const);
 
     class Timer{
     private:
@@ -41,10 +42,10 @@ public:
 
         std::string get_name() const;
 
-        void (*callback_timer_start) (struct timer_event_t const timer_event){NULL};
-        void (*callback_timer_stop)  (struct timer_event_t const timer_event){NULL};
-        void (*callback_timer_alarm) (struct timer_event_t const timer_event){NULL};
-        void (*callback_timer_reset) (struct timer_event_t const timer_event){NULL};
+        alarm_callback_t callback_timer_start{NULL};
+        alarm_callback_t callback_timer_stop{NULL};
+        alarm_callback_t callback_timer_alarm{NULL};
+        alarm_callback_t callback_timer_reset{NULL};
         void start();
         void pause();
         void set_alarm_value(double timer_interval_sec);
@@ -66,7 +67,7 @@ public:
     TimerContainer();
     void update();
     Timer* get_primary_timer();
-    void register_callback(timer_id_t timer_id,timer_event_type_t event_type, void  (*new_callback)(timer_event_t const timer_event));
+    void register_callback(timer_id_t timer_id,timer_event_type_t event_type, alarm_callback_t new_callback);
 };
 
 

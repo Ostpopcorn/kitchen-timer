@@ -107,7 +107,7 @@ void Battery::set_pins(adc1_channel_t battery_analog_1_channel, gpio_num_t batte
     }
 
 }
-void Battery::register_callback(void (*new_callback)(Battery* timer_event)){
+void Battery::register_callback(battery_callback_t new_callback){
     if (new_callback != NULL)
     {
         callback = new_callback;

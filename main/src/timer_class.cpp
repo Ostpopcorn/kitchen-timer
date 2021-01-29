@@ -144,7 +144,7 @@ void TimerContainer::update(){
     
 }
 
-void TimerContainer::register_callback(timer_id_t timer_id, timer_event_type_t event_type, void  (*new_callback)(timer_event_t const timer_event)){
+void TimerContainer::register_callback(timer_id_t timer_id, timer_event_type_t event_type, alarm_callback_t new_callback){
     if (new_callback == NULL){
         return;
     }
