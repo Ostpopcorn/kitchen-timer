@@ -1,3 +1,4 @@
+#include "sdkconfig.h"
 #include "screen_controller.h"
 #include "screen_view_16x2.h"
 
