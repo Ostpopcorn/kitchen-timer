@@ -10,3 +10,6 @@
 [submodule "components/esp32-LiquidCrystal"]
 	path = components/esp32-LiquidCrystal
 	url = git@github.com:Ostpopcorn/esp32-LiquidCrystal.git
+[submodule "components/clock_object"]
+	path = components/clock_object
+	url = git@github.com:Ostpopcorn/clock_object.git
