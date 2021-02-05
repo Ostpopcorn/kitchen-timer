@@ -121,8 +121,8 @@ double  TimerContainer::Timer::get_remainder_as_double()
     
 }
 
-Clock TimerContainer::Timer::get_remainder_as_clock(){
-    Clock clock;
+CounterClock TimerContainer::Timer::get_remainder_as_clock(){
+    CounterClock clock;
     clock = clock + (int) this->get_remainder_as_double()+0.5;
     // printf("%s\n",clock.to_string().c_str());
     return clock;

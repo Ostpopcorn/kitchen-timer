@@ -3,7 +3,7 @@
 
 #include "esp_types.h"
 #include <functional>
-#include "clock.h"
+#include "counter_clock.h"
 #include "string.h"
 #include "esp_timer.h"
 
@@ -53,7 +53,7 @@ public:
         void set_alarm_value(double timer_interval_sec);
         void set_alarm_value(Clock timer_interval_sec);
         double get_remainder_as_double();
-        Clock get_remainder_as_clock();
+        CounterClock get_remainder_as_clock();
         void change_alarm_value(int seconds);
         void check_alarm();
         bool is_running();
