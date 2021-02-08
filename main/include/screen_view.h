@@ -2,7 +2,7 @@
 #define TIMER_SCREEN_VIEW_H
 
 #include "screen_model.h"
-
+#include "screen_model_entry_types.h"
 
 class ViewBase
 {
@@ -14,8 +14,8 @@ protected:
         JUSTIFY_RIGHT
     } justify_t;
 public:
-    static ScreenModel* model;
-    static void assing_model(ScreenModel* new_model);
+    static ScreenModel<model_entry_types_t,std::string>* model;
+    static void assing_model(ScreenModel<model_entry_types_t,std::string>* new_model);
     bool has_model();
     ViewBase();
     virtual ~ViewBase();

@@ -91,7 +91,11 @@
 			"xmemory0": "cpp",
 			"xstddef": "cpp",
 			"xtr1common": "cpp",
-			"memory_resource": "cpp"
+			"memory_resource": "cpp",
+			"bitset": "cpp",
+			"regex": "cpp",
+			"stack": "cpp",
+			"variant": "cpp"
 		},
 		"idf.portWin": "COM17",
 		"idf.flashType": "UART"

@@ -5,56 +5,48 @@
 #include <map>
 
 
+template<class identifier_t,class object_type_t >
 class ScreenModelEntry{
 public:
-    typedef enum{
-        ENTRY_NON=0,
-        
-        ENTRY_STARTUP = 2,
-
-        ENTRY_YES =10,
-        ENTRY_NO,
-        ENTRY_START,
-        ENTRY_STOP,
-        ENTRY_PRIMARY_TIMER = 100,
-        ENTRY_BATTERY_VOLTAGE = 200,
-    } model_entry_types_t;
     ScreenModelEntry();
-    ScreenModelEntry(model_entry_types_t identifier);
-    ScreenModelEntry(model_entry_types_t identifier, std::string value);
+    ScreenModelEntry(identifier_t identifier);
+    ScreenModelEntry(identifier_t identifier, object_type_t value);
 
     bool operator<(ScreenModelEntry const &rhs) const;
 
-    bool operator!=(ScreenModelEntry const &rhs) const ;
-    template<class T>
-    void set_new(T new_entry);
+    bool operator!=(ScreenModelEntry const &rhs) const;
+
+    void set_new(object_type_t new_entry);
 
     bool has_been_updated(bool reset = true);
 
-    std::string get_string();
+    object_type_t get_object();
 
-    model_entry_types_t get_identifier() const;
+    identifier_t get_identifier() const;
 
 private:
     bool has_changed{false};
-    model_entry_types_t identifier{ENTRY_NON};
-    std::string current_string{""};
+    identifier_t identifier{};
+    object_type_t current_object{};
 
 };
 
+template<class identifier_t,class object_type_t >
 class  ScreenModel{
 public:
     
-    
     ScreenModel();
-    void put_new_entry(ScreenModelEntry);
-    void put_new_entry(ScreenModelEntry::model_entry_types_t identifier, std::string value);
-    std::string get_entry_string(ScreenModelEntry::model_entry_types_t);
+    void put_new_entry(ScreenModelEntry<identifier_t,object_type_t>);
+
+    void put_new_entry(identifier_t identifier, object_type_t value);
+
+    std::string get_entry_string(identifier_t);
 private:
-    ScreenModelEntry &get_entry(ScreenModelEntry::model_entry_types_t);
-    std::map<ScreenModelEntry::model_entry_types_t,ScreenModelEntry> all_entries{};
-protected:
-    ScreenModelEntry empty{};
+    ScreenModelEntry<identifier_t,object_type_t> &get_entry(identifier_t);
+    ScreenModelEntry<identifier_t,object_type_t> empty{};
+
+    std::map<identifier_t,object_type_t> all_entries{};
+    
 };
 
 

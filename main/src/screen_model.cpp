@@ -1,44 +1,37 @@
 #include "screen_model.h"
 
+template<class identifier_t,class object_type_t >
+ScreenModelEntry<identifier_t,object_type_t>::ScreenModelEntry(){}
 
-ScreenModelEntry::ScreenModelEntry(): identifier{ScreenModelEntry::ENTRY_NON}{}
+template<class identifier_t,class object_type_t >
+ScreenModelEntry<identifier_t,object_type_t>::ScreenModelEntry(identifier_t identifier): identifier{identifier}{}
 
-ScreenModelEntry::ScreenModelEntry(ScreenModelEntry::model_entry_types_t identifier): identifier{identifier}{}
+template<class identifier_t,class object_type_t >
+ScreenModelEntry<identifier_t,object_type_t>::ScreenModelEntry(identifier_t identifier, object_type_t value):
+        identifier{identifier},current_object{value}{}
 
-ScreenModelEntry::ScreenModelEntry(ScreenModelEntry::model_entry_types_t identifier, std::string value):
-        identifier{identifier},current_string{value}{}
-
-bool ScreenModelEntry::operator<(ScreenModelEntry const &rhs) const {
+template<class identifier_t,class object_type_t >
+bool ScreenModelEntry<identifier_t,object_type_t>::operator<(ScreenModelEntry const &rhs) const {
     return (this->get_identifier() < rhs.get_identifier());
 }
 
-bool ScreenModelEntry::operator!=(ScreenModelEntry const &rhs) const {
+template<class identifier_t,class object_type_t >
+bool ScreenModelEntry<identifier_t,object_type_t>::operator!=(ScreenModelEntry const &rhs) const {
     return (this->get_identifier() != rhs.get_identifier());
 }
 
-template <>
-void ScreenModelEntry::set_new(std::string new_entry_string){
-    // std::string new_entry_string{new_entry.to_string()};
-    if (new_entry_string == current_string){
+template<class identifier_t,class object_type_t >
+void ScreenModelEntry<identifier_t,object_type_t>::set_new(object_type_t new_entry){
+    if (new_entry == current_object){
         return;
     }
-    current_string = new_entry_string;
+    current_object = new_entry;
     has_changed = true;
     return;
 }
 
-template <class T>
-void ScreenModelEntry::set_new(T new_entry){
-    std::string new_entry_string{new_entry.to_string()};
-    if (new_entry == current_string){
-        return;
-    }
-    current_string = new_entry_string;
-    has_changed = true;
-    return;
-}
-
-bool ScreenModelEntry::has_been_updated(bool reset){
+template<class identifier_t,class object_type_t >
+bool ScreenModelEntry<identifier_t,object_type_t>::has_been_updated(bool reset){
     bool return_bool = has_changed;
     if (reset == true){
         has_changed = false;
@@ -46,13 +39,22 @@ bool ScreenModelEntry::has_been_updated(bool reset){
     return return_bool;
 }
 
-std::string ScreenModelEntry::get_string(){
-    return current_string;
+template<class identifier_t,class object_type_t >
+object_type_t ScreenModelEntry<identifier_t,object_type_t>::get_object(){
+    return current_object;
 }
 
-ScreenModelEntry &ScreenModel::get_entry(ScreenModelEntry::model_entry_types_t identifier) {
+template<class identifier_t,class object_type_t >
+identifier_t ScreenModelEntry<identifier_t,object_type_t>::get_identifier() const {
+    return identifier;
+}
 
-    std::map<ScreenModelEntry::model_entry_types_t,ScreenModelEntry>::iterator
+
+template<class identifier_t,class object_type_t >
+ScreenModelEntry<identifier_t,object_type_t> &ScreenModel<identifier_t,object_type_t>::get_entry(identifier_t identifier) {
+
+    //std::map<identifier_t,ScreenModelEntry<identifier_t,object_type_t>>::iterator
+    auto
              search = all_entries.find(identifier);
     if (search != all_entries.end()) {
         // ScreenModel::ScreenModelEntry< a = search;
@@ -63,23 +65,18 @@ ScreenModelEntry &ScreenModel::get_entry(ScreenModelEntry::model_entry_types_t i
     }
 }
 
-ScreenModel::ScreenModel(){
-    all_entries.insert({ScreenModelEntry::ENTRY_YES,ScreenModelEntry{ScreenModelEntry::ENTRY_YES,"Yes"}});
-    all_entries.insert({ScreenModelEntry::ENTRY_NO, ScreenModelEntry{ScreenModelEntry::ENTRY_NO,"No"}});                                 
-    all_entries.insert({ScreenModelEntry::ENTRY_START, ScreenModelEntry{ScreenModelEntry::ENTRY_START,"Start"}});                                 
-    all_entries.insert({ScreenModelEntry::ENTRY_STOP, ScreenModelEntry{ScreenModelEntry::ENTRY_STOP,"Stop"}});                                 
-    
+template<class identifier_t,class object_type_t >
+ScreenModel<identifier_t,object_type_t>::ScreenModel(){
+
 }
 
-ScreenModelEntry::model_entry_types_t ScreenModelEntry::get_identifier() const {
-    return identifier;
-}
-
-void ScreenModel::put_new_entry(ScreenModelEntry new_entry) {
-    if(new_entry.get_identifier() == ScreenModelEntry::ENTRY_NON){
+template<class identifier_t,class object_type_t >
+void ScreenModel<identifier_t,object_type_t>::put_new_entry(ScreenModelEntry<identifier_t,object_type_t> new_entry) {
+    if(!new_entry.get_identifier()){
         return;
     }
-    std::map<ScreenModelEntry::model_entry_types_t,ScreenModelEntry>::iterator
+    // std::map<ScreenModelEntry::model_entry_types_t,ScreenModelEntry<identifier_t,object_type_t>>::iterator
+    auto
              search = all_entries.find(new_entry.get_identifier());
 
     if(search != all_entries.end()){
@@ -91,11 +88,15 @@ void ScreenModel::put_new_entry(ScreenModelEntry new_entry) {
     //found_entry.set_new(new_entry.get_string());
 }
 
-void ScreenModel::put_new_entry(ScreenModelEntry::model_entry_types_t identifier, std::string value) {
-    put_new_entry(ScreenModelEntry{identifier,value});
+
+template<class identifier_t,class object_type_t >
+void ScreenModel<identifier_t,object_type_t>::put_new_entry(identifier_t identifier, object_type_t value) {
+    put_new_entry(ScreenModelEntry<identifier_t,object_type_t>{identifier,value});
 }
 
-std::string ScreenModel::get_entry_string(ScreenModelEntry::model_entry_types_t to_get){
-    ScreenModelEntry a = get_entry(to_get);
+
+template<class identifier_t,class object_type_t >
+std::string ScreenModel<identifier_t,object_type_t>::get_entry_string(identifier_t to_get){
+    ScreenModelEntry<identifier_t,object_type_t> a = get_entry(to_get);
     return a.get_string();
 }

@@ -10,7 +10,7 @@ TimerContainer::TimerContainer()
     char buffer[16];
     for (size_t i = 0; i < max_timers; i++)
     {
-        sprintf(buffer,"Timer %i",i);
+        sprintf(buffer,"T%i",i);
         timers[i] = Timer(i,buffer);
     }
 }

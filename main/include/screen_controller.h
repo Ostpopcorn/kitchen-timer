@@ -5,6 +5,7 @@
 #include "screen_view.h"
 #include "timer_class.h"
 #include "battery_monitor.h"
+#include "screen_model_entry_types.h"
 
 class ScreenController
 {
@@ -15,7 +16,7 @@ public:
         CLOCK_SHOW_TIMER = 10,
     } screen_views_t;
 private:
-    ScreenModel* model{NULL};
+    ScreenModel<model_entry_types_t,std::string>* model{NULL};
     ViewBase* current_view{NULL};
 public:
     ScreenController();

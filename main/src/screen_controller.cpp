@@ -1,13 +1,18 @@
 #include "sdkconfig.h"
 #include "screen_controller.h"
 #include "screen_view_16x2.h"
+#include "sdkconfig.h"
 
 ScreenController::ScreenController()
 {
-    model= new ScreenModel{};
+    model= new ScreenModel<model_entry_types_t,std::string>{};
     ViewBase16x2::assing_model(model);
-    model->put_new_entry(ScreenModelEntry::ENTRY_STARTUP,CONFIG_SCREEN_STARTUP_MESSAGE);
-    model->put_new_entry(ScreenModelEntry::ENTRY_BATTERY_VOLTAGE,"-.--");
+    model->put_new_entry( ENTRY_YES,"Yes");
+    model->put_new_entry( ENTRY_NO,"No");
+    model->put_new_entry( ENTRY_START,"Start");
+    model->put_new_entry( ENTRY_STOP,"Stop");
+    model->put_new_entry(ENTRY_STARTUP,CONFIG_SCREEN_STARTUP_MESSAGE);
+    model->put_new_entry(ENTRY_BATTERY_VOLTAGE,"-.--");
 }
 
 ScreenController::~ScreenController()
@@ -42,7 +47,7 @@ void ScreenController::change_view(screen_views_t new_view){
 }
 void ScreenController::handle_event_timer(TimerContainer* timer)
 {
-    model->put_new_entry(ScreenModelEntry::ENTRY_PRIMARY_TIMER,
+    model->put_new_entry(ENTRY_PRIMARY_TIMER,
           timer->get_primary_timer()->get_remainder_as_clock().to_string(' ').c_str());
 }
 void ScreenController::handle_event_battery(Battery* battery)
@@ -57,5 +62,5 @@ void ScreenController::handle_event_battery(Battery* battery)
     text[2] = '0'+(val/100)%10;
     text[3] = '0'+(val/10)%10;
     text[4] = '\0';
-    model->put_new_entry(ScreenModelEntry::ENTRY_BATTERY_VOLTAGE,text);
+    model->put_new_entry(ENTRY_BATTERY_VOLTAGE,text);
 }
