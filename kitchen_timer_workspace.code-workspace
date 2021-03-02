@@ -95,7 +95,8 @@
 			"bitset": "cpp",
 			"regex": "cpp",
 			"stack": "cpp",
-			"variant": "cpp"
+			"variant": "cpp",
+			"*.tpp": "cpp"
 		},
 		"idf.portWin": "COM17",
 		"idf.flashType": "UART"

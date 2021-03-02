@@ -36,19 +36,18 @@ class  ScreenModel{
 public:
     
     ScreenModel();
-    void put_new_entry(ScreenModelEntry<identifier_t,object_type_t>);
+    void put_new_entry(ScreenModelEntry<identifier_t,object_type_t> new_entry);
 
     void put_new_entry(identifier_t identifier, object_type_t value);
 
-    std::string get_entry_string(identifier_t);
+    ScreenModelEntry<identifier_t,object_type_t>& get_entry(identifier_t identifier);
+    object_type_t get_entry_object(identifier_t identifier);
 private:
-    ScreenModelEntry<identifier_t,object_type_t> &get_entry(identifier_t);
-    ScreenModelEntry<identifier_t,object_type_t> empty{};
 
-    std::map<identifier_t,object_type_t> all_entries{};
-    
+    std::map<identifier_t,ScreenModelEntry<identifier_t,object_type_t>> all_entries{};
+    ScreenModelEntry<identifier_t,object_type_t> empty{};
 };
 
-
+#include "screen_model.tpp"
 
 #endif
