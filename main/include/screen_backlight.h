@@ -11,6 +11,7 @@ private:
     ledc_channel_config_t ledc_channel;
     ledc_timer_config_t ledc_timer;
     uint32_t fade_time{1000};
+    uint8_t target{0};
     void set_gpio(gpio_num_t gpio);
 
 public:

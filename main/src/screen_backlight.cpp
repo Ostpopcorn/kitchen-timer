@@ -35,7 +35,7 @@ void LcdBacklight::set_gpio(gpio_num_t gpio){
     ledc_channel.speed_mode = ledc_timer.speed_mode;
     ledc_channel.channel    = LEDC_CHANNEL_0;
     ledc_channel.timer_sel  = ledc_timer.timer_num;
-    ledc_channel.duty       = 0;
+    ledc_channel.duty       = target;
     ledc_channel.hpoint     = 0;
 
     ledc_channel_config(&ledc_channel);
@@ -50,8 +50,13 @@ void LcdBacklight::set_fade_time(uint32_t new_fade_time){
 }
 
 void LcdBacklight::fade_to(uint8_t value){
-    ledc_set_fade_with_time(ledc_channel.speed_mode,
-            ledc_channel.channel, value, fade_time);
-    ledc_fade_start(ledc_channel.speed_mode,
-            ledc_channel.channel, LEDC_FADE_NO_WAIT);
+    if(value != target){
+        ledc_set_fade_with_time(ledc_channel.speed_mode,
+                ledc_channel.channel, value, fade_time);
+        ledc_fade_start(ledc_channel.speed_mode,
+                ledc_channel.channel, LEDC_FADE_NO_WAIT);
+        target = value;
+    }else{
+        // target value is the same as current so dont do anything.
+    }
 }
