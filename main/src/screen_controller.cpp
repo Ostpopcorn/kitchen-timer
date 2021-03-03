@@ -1,18 +1,20 @@
 #include "sdkconfig.h"
 #include "screen_controller.h"
 #include "screen_view_16x2.h"
-#include "sdkconfig.h"
+#include "esp_timer.h"
+#include "animator.h"
 
 ScreenController::ScreenController()
 {
     model= new ScreenModel<model_entry_types_t,std::string>{};
     ViewBase16x2::assing_model(model);
+    Animator::set_clock_func(esp_timer_get_time);
     model->put_new_entry( ENTRY_YES,"Yes");
     model->put_new_entry( ENTRY_NO,"No");
     model->put_new_entry( ENTRY_START,"Start");
     model->put_new_entry( ENTRY_STOP,"Stop");
-    model->put_new_entry(ENTRY_STARTUP,CONFIG_SCREEN_STARTUP_MESSAGE);
-    model->put_new_entry(ENTRY_BATTERY_VOLTAGE,"-.--");
+    model->put_new_entry( ENTRY_STARTUP,CONFIG_SCREEN_STARTUP_MESSAGE);
+    model->put_new_entry( ENTRY_BATTERY_VOLTAGE,"-.--");
 }
 
 ScreenController::~ScreenController()

@@ -4,6 +4,7 @@
 #include "screen_view.h"
 #include "LiquidCrystalGPIO.h"
 #include "screen_backlight.h"
+#include "animator.h"
 
 
 
@@ -35,7 +36,7 @@ public:
 class View16x2Start : public ViewBase16x2
 {
 protected:
-
+    AnimationSpinningWheel anim{};
 public:
     View16x2Start();
     virtual ~View16x2Start();

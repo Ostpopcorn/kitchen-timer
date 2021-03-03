@@ -30,4 +30,11 @@ void View16x2Start::update()
     if(has_backlight()){
         backlight->fade_to(127);
     }
+    // Add a animation, spinning wheel " | / - \ " so it spinns once per second
+    // then hook update to a separate task. 
+
+    anim.update();
+    write_text_on_screen(anim.get_char_pointer(),
+                        0,15,ViewBase::JUSTIFY_LEFT);
+
 }
