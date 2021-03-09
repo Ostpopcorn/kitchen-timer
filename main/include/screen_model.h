@@ -42,6 +42,7 @@ public:
 
     ScreenModelEntry<identifier_t,object_type_t>& get_entry(identifier_t identifier);
     object_type_t get_entry_object(identifier_t identifier);
+    std::string get_entry_string(identifier_t identifier);
 private:
 
     std::map<identifier_t,ScreenModelEntry<identifier_t,object_type_t>> all_entries{};
