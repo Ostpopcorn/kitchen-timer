@@ -11,6 +11,9 @@ typedef enum{
     ENTRY_NO,
     ENTRY_START,
     ENTRY_STOP,
+    ENTRY_PAUSE,
+    ENTRY_CONTINUE,
+    ENTRY_RESET,
     ENTRY_PRIMARY_TIMER = 100,
     ENTRY_BATTERY_VOLTAGE = 200,
 } model_entry_types_t;

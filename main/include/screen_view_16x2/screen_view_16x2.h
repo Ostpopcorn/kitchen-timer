@@ -44,13 +44,45 @@ public:
 };
 
 
-class View16x2SimpleClock : public ViewBase16x2
+class View16x2ClockStop : public ViewBase16x2
 {
 protected:
 
 public:
-    View16x2SimpleClock();
-    virtual ~View16x2SimpleClock();
+    View16x2ClockStop();
+    virtual ~View16x2ClockStop();
+    virtual void update() override;
+};
+
+
+class View16x2ClockPause : public ViewBase16x2
+{
+protected:
+
+public:
+    View16x2ClockPause();
+    virtual ~View16x2ClockPause();
+    virtual void update() override;
+};
+
+
+class View16x2ClockRunning : public ViewBase16x2
+{
+protected:
+
+public:
+    View16x2ClockRunning();
+    virtual ~View16x2ClockRunning();
+    virtual void update() override;
+};
+
+class View16x2ClockAlarm : public ViewBase16x2
+{
+protected:
+
+public:
+    View16x2ClockAlarm();
+    virtual ~View16x2ClockAlarm();
     virtual void update() override;
 };
 

@@ -13,7 +13,10 @@ public:
     typedef enum {
         CLOCK_BLANK = 0,
         CLOCK_WELCOME = 1,
-        CLOCK_SHOW_TIMER = 10,
+        CLOCK_TIMER_STOP = 10,
+        CLOCK_TIMER_RUNNING,
+        CLOCK_TIMER_ALARM,
+        CLOCK_TIMER_PAUSE,
     } screen_views_t;
 private:
     ScreenModel<model_entry_types_t,std::string>* model{NULL};

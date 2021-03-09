@@ -233,7 +233,7 @@ extern "C" void app_main()
                 // lcd.setCursor(4, 1);
                 if (btn_ev.event == BUTTON_RISING_EDGE){
                     ESP_LOGI(TAG, "rot_enc_btn_gpio rising edge");
-                    controller->change_view(ScreenController::CLOCK_SHOW_TIMER);
+                    controller->change_view(ScreenController::CLOCK_TIMER_STOP);
                     // lcd.write('R');
                 }
                 else if (btn_ev.event == BUTTON_FALLING_EDGE){

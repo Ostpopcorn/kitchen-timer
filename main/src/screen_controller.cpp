@@ -13,6 +13,9 @@ ScreenController::ScreenController()
     model->put_new_entry( ENTRY_NO,"No");
     model->put_new_entry( ENTRY_START,"Start");
     model->put_new_entry( ENTRY_STOP,"Stop");
+    model->put_new_entry( ENTRY_PAUSE,"Pause");
+    model->put_new_entry( ENTRY_CONTINUE,"Cont");
+    model->put_new_entry( ENTRY_RESET,"Rst");
     model->put_new_entry( ENTRY_STARTUP,CONFIG_SCREEN_STARTUP_MESSAGE);
     model->put_new_entry( ENTRY_BATTERY_VOLTAGE,"-.--");
 }
@@ -36,11 +39,29 @@ void ScreenController::change_view(screen_views_t new_view){
         }
         current_view = new View16x2Start{};
         break;
-    case CLOCK_SHOW_TIMER:
+    case CLOCK_TIMER_STOP:
         if (current_view != NULL){
             delete current_view;
         }
-        current_view = new View16x2SimpleClock{};
+        current_view = new View16x2ClockStop{};
+        break;
+    case CLOCK_TIMER_RUNNING:
+        if (current_view != NULL){
+            delete current_view;
+        }
+        current_view = new View16x2ClockRunning{};
+        break;
+    case CLOCK_TIMER_PAUSE:
+        if (current_view != NULL){
+            delete current_view;
+        }
+        current_view = new View16x2ClockPause{};
+        break;
+    case CLOCK_TIMER_ALARM:
+        if (current_view != NULL){
+            delete current_view;
+        }
+        current_view = new View16x2ClockAlarm{};
         break;
     default:
         break;
