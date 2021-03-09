@@ -1,6 +1,6 @@
 #include "animator.h"
 
-Animator::get_clock_function_t Animator::clock_func{};
+Animator::get_clock_function_t Animator::static_clock_func{};
 
 Animator::Animator()
 {
@@ -14,12 +14,21 @@ Animator::~Animator()
 
 void Animator::set_clock_func(get_clock_function_t new_func){
     if(new_func){
-        Animator::clock_func = new_func;
+        Animator::static_clock_func = new_func;
     }
 }
+
+void Animator::set_private_clock_func(get_clock_function_t new_func){
+    if(new_func){
+        private_clock_func = new_func;
+    }
+}
+
 int64_t Animator::get_time(){
-    if (Animator::clock_func){
-        return Animator::clock_func();
+    if (private_clock_func){
+        return private_clock_func();
+    }else if (Animator::static_clock_func){
+        return Animator::static_clock_func();
     }
     return 0;
 }
@@ -29,7 +38,7 @@ int64_t Animator::get_time_diff_since_reset(){
 }
 
 void Animator::time_diff_reset(){
-    last_timer_time = clock_func();
+    last_timer_time = get_time();
 }
 
 

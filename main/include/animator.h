@@ -8,12 +8,14 @@ public:
     typedef std::function<int64_t()> get_clock_function_t;
     // typedef void (*get_clock_function_t)();
     static void set_clock_func(get_clock_function_t);
+    void set_private_clock_func(get_clock_function_t);
 protected:
-    static int64_t get_time();
+    int64_t get_time();
     int64_t get_time_diff_since_reset();
     void time_diff_reset();
 private:
-    static get_clock_function_t clock_func; 
+    static get_clock_function_t static_clock_func; 
+    get_clock_function_t private_clock_func; 
     int64_t last_timer_time{0};
 
 public:
