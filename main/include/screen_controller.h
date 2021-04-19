@@ -6,6 +6,9 @@
 #include "timer_class.h"
 #include "battery_monitor.h"
 #include "screen_model_entry_types.h"
+#include "button.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/queue.h"
 
 class ScreenController
 {
@@ -19,7 +22,7 @@ public:
         CLOCK_TIMER_PAUSE,
     } screen_views_t;
 private:
-    ScreenModel<model_entry_types_t,std::string>* model{NULL};
+    ScreenModel* model{NULL};
     ViewBase* current_view{NULL};
     
 public:

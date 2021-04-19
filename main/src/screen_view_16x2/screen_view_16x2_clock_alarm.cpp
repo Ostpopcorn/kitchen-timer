@@ -1,5 +1,5 @@
 #include "screen_view_16x2.h"
-#include "string.h"
+#include <cstring>
 #include "esp_log.h"
 #include "screen_model_entry_types.h"
 
@@ -20,11 +20,11 @@ void View16x2ClockAlarm::update()
     write_text_on_screen("A",
                          0,0,ViewBase::JUSTIFY_CENTER);
     // Dela upp i "kör" och "står still" och "alarm"
-    write_text_on_screen(model->get_entry_object(ENTRY_PRIMARY_TIMER),
+    write_text_on_screen(model->get_entry_object<std::string>(ENTRY_PRIMARY_TIMER),
                          0,7,ViewBase::JUSTIFY_CENTER);
-    write_text_on_screen(model->get_entry_object(ENTRY_START),
+    write_text_on_screen(model->get_entry_object<std::string>(ENTRY_START),
                          1,4,ViewBase::JUSTIFY_CENTER);
-    write_text_on_screen(model->get_entry_object(ENTRY_STOP),
+    write_text_on_screen(model->get_entry_object<std::string>(ENTRY_STOP),
                          1,11,ViewBase::JUSTIFY_CENTER);
                          
     // This should fade packlight up and down

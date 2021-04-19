@@ -1,4 +1,4 @@
-#if !defined(SCREEN_MODEL_ENTRY_TYPES_H)
+#ifndef SCREEN_MODEL_ENTRY_TYPES_H
 #define SCREEN_MODEL_ENTRY_TYPES_H
 
 
@@ -16,6 +16,7 @@ typedef enum{
     ENTRY_RESET,
     ENTRY_PRIMARY_TIMER = 100,
     ENTRY_BATTERY_VOLTAGE = 200,
+    ENTRY_DUMMY_INT = 1000,
 } model_entry_types_t;
 
 #endif // SCREEN_MODEL_ENTRY_TYPES_H

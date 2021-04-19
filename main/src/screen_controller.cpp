@@ -4,20 +4,22 @@
 #include "esp_timer.h"
 #include "animator.h"
 
+
 ScreenController::ScreenController()
 {
-    model= new ScreenModel<model_entry_types_t,std::string>{};
+    model= new ScreenModel{};
     ViewBase16x2::assing_model(model);
+    model->insert(ENTRY_DUMMY_INT, 10);
     Animator::set_clock_func(esp_timer_get_time);
-    model->put_new_entry( ENTRY_YES,"Yes");
-    model->put_new_entry( ENTRY_NO,"No");
-    model->put_new_entry( ENTRY_START,"Start");
-    model->put_new_entry( ENTRY_STOP,"Stop");
-    model->put_new_entry( ENTRY_PAUSE,"Pause");
-    model->put_new_entry( ENTRY_CONTINUE,"Cont");
-    model->put_new_entry( ENTRY_RESET,"Rst");
-    model->put_new_entry( ENTRY_STARTUP,CONFIG_SCREEN_STARTUP_MESSAGE);
-    model->put_new_entry( ENTRY_BATTERY_VOLTAGE,"-.--");
+    model->insert( ENTRY_YES,"Yes");
+    model->insert( ENTRY_NO,"No");
+    model->insert( ENTRY_START,"Start");
+    model->insert( ENTRY_STOP,"Stop");
+    model->insert( ENTRY_PAUSE,"Pause");
+    model->insert( ENTRY_CONTINUE,"Cont");
+    model->insert( ENTRY_RESET,"Rst");
+    model->insert( ENTRY_STARTUP,CONFIG_SCREEN_STARTUP_MESSAGE);
+    model->insert( ENTRY_BATTERY_VOLTAGE,"-.--");
 }
 
 ScreenController::~ScreenController()
@@ -70,8 +72,8 @@ void ScreenController::change_view(screen_views_t new_view){
 }
 void ScreenController::handle_event_timer(TimerContainer* timer)
 {
-    model->put_new_entry(ENTRY_PRIMARY_TIMER,
-          timer->get_primary_timer()->get_remainder_as_clock().to_string(' ').c_str());
+    model->insert(ENTRY_PRIMARY_TIMER,
+          timer->get_primary_timer()->get_remainder_as_clock().to_string(' '));
 }
 void ScreenController::handle_event_battery(Battery* battery)
 {
@@ -85,6 +87,8 @@ void ScreenController::handle_event_battery(Battery* battery)
     text[2] = '0'+(val/100)%10;
     text[3] = '0'+(val/10)%10;
     text[4] = '\0';
+    model->insert(ENTRY_BATTERY_VOLTAGE,(const char*)text);
+}
 
 void ScreenController::set_button_info(button_info_t* new_info){
     button_info = new_info;

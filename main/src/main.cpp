@@ -24,7 +24,9 @@
 
 extern "C" void app_main()
 {
-
+    #define STRING2(x) #x
+    #define STRING(x) STRING2(x)
+    #pragma message(STRING(__cplusplus))
     // esp_log_set_vprintf(esp_apptrace_vprintf);
     
     ESP_LOGI(TAG, "Soon...");
@@ -38,7 +40,7 @@ extern "C" void app_main()
     // Need both ADC channel and GPIO NUM
     gpio_num_t battery_monitor_enable_pin = GPIO_NUM_32;
 
-    gpio_num_t battery_monitor_analog_pin = GPIO_NUM_33; 
+    // gpio_num_t battery_monitor_analog_pin = GPIO_NUM_33; 
     adc1_channel_t battery_monitor_analog_adc1_channel = ADC1_CHANNEL_5;
 
     Battery* battery_monitor = new Battery{battery_monitor_analog_adc1_channel,battery_monitor_enable_pin};

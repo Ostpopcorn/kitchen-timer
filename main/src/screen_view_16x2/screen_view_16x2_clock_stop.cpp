@@ -20,9 +20,9 @@ void View16x2ClockStop::update()
     write_text_on_screen("S",
                          0,0,ViewBase::JUSTIFY_CENTER);
     // Dela upp i "kör" och "står still" och "alarm"
-    write_text_on_screen(model->get_entry_object(ENTRY_PRIMARY_TIMER),
+    write_text_on_screen(model->get_entry_object<std::string>(ENTRY_PRIMARY_TIMER),
                          0,7,ViewBase::JUSTIFY_CENTER);
-    write_text_on_screen(model->get_entry_object(ENTRY_START),
+    write_text_on_screen(model->get_entry_object<std::string>(ENTRY_START),
                          1,4,ViewBase::JUSTIFY_CENTER);
                          
 }
