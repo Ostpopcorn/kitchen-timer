@@ -146,6 +146,8 @@ extern "C" void app_main()
     gpio_num_t btn_gpio_arr[5] = {btn_1, btn_2,btn_3,rot_enc_btn_gpio, GPIO_NUM_NC};
     ESP_ERROR_CHECK(button_init(&button_info, btn_gpio_arr));
     ESP_ERROR_CHECK(button_set_queue(&button_info, button_event_queue));
+    
+    controller->set_button_info(&button_info);
 
     button_event_t btn_ev = GENERATE_BUTTON_EVENT_T;
     rotary_encoder_event_t rot_ev = GENERAT_ROTARY_ENCODER_EVENT_T;
@@ -163,6 +165,7 @@ extern "C" void app_main()
 
     while (1)
     {
+        /*
         while (xQueueReceive(button_event_queue, &(btn_ev),1) == pdPASS){
             if (btn_ev.pin == btn_1)
             {
@@ -250,6 +253,7 @@ extern "C" void app_main()
                 }
             }
         }
+        */
         
         while (xQueueReceive(rotary_encoder_event_queue, &rot_ev,1) == pdPASS){
             //ESP_LOGI(TAG,"%i",rot_ev.state.position);
@@ -325,32 +329,9 @@ extern "C" void app_main()
             timer->get_primary_timer()->change_alarm_value(conv);
         
         } 
-        /*
-        while (xQueueReceive(timer.get_queue_handle(), &timer_event,1) == pdPASS){
-            // Print information that the timer reported an event 
-            if (timer_event.type == 1) {
-                printf("\n    Example timer without reload\n");
-            } else if (timer_event.type == 0) {
-                printf("\n    Example timer with auto reload\n");
-            } else {
-                printf("\n    UNKNOWN EVENT TYPE\n");
-            }
-            printf("Group[%d], timer[%d] alarm event\n", timer_event.timer_group, timer_event.timer_idx);
-
-            // Print the timer values passed by event 
-            //printf("------- EVENT TIME --------\n");
-            //print_timer_counter(timer_event.timer_counter_value);
-
-            // Print the timer values as visible by this task 
-            //printf("-------- TASK TIME --------\n");
-            //uint64_t task_counter_value;
-            //timer_get_counter_value(timer_event.timer_group, timer_event.timer_idx, &task_counter_value);
-            //print_timer_counter(task_counter_value);
-        }
-        */
-        //ESP_LOGI("H","%f",timer.get_remainder_as_double(TIMER_0));
-        //screen.update(&timer);
+        
         controller->handle_event_timer(timer);
+        controller->update_button();
         controller->update();
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }

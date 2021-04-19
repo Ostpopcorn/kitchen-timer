@@ -85,5 +85,56 @@ void ScreenController::handle_event_battery(Battery* battery)
     text[2] = '0'+(val/100)%10;
     text[3] = '0'+(val/10)%10;
     text[4] = '\0';
-    model->put_new_entry(ENTRY_BATTERY_VOLTAGE,text);
+
+void ScreenController::set_button_info(button_info_t* new_info){
+    button_info = new_info;
+}
+
+void ScreenController::update_button()
+{
+    if(!button_info){
+        return;
+    }
+    if(!button_info->queue){
+        return;
+    }
+    button_event_t btn_ev = GENERATE_BUTTON_EVENT_T;
+    while (xQueueReceive((*button_info).queue, &(btn_ev),1) == pdPASS){
+        if (btn_ev.pin == button_info->pin_list[0])
+        {
+            callback_button_1(btn_ev);
+        }
+        else if (btn_ev.pin == button_info->pin_list[1])
+        {
+            callback_button_2(btn_ev);
+        }
+        else if (btn_ev.pin == button_info->pin_list[2])
+        {
+            callback_button_3(btn_ev);
+        }
+        else if (btn_ev.pin == button_info->pin_list[3])
+        {
+            callback_button_4(btn_ev);
+        }
+    }
+}
+void ScreenController::callback_button_1(button_event_t button_event){
+    if (button_event.event == BUTTON_RISING_EDGE){
+        change_view(ScreenController::CLOCK_TIMER_RUNNING);
+    }
+
+}
+void ScreenController::callback_button_2(button_event_t button_event){
+
+}
+void ScreenController::callback_button_3(button_event_t button_event){
+
+}
+void ScreenController::callback_button_4(button_event_t button_event){
+    if (button_event.event == BUTTON_RISING_EDGE){
+        change_view(ScreenController::CLOCK_TIMER_STOP);
+    }
+}
+void ScreenController::callback_rot_changed(int){
+
 }
