@@ -2,7 +2,7 @@
 #include "string.h"
 #include "esp_log.h"
 #include "screen_model_entry_types.h"
-
+#include "battery_monitor.h"
 #define TAG "SVIEW"
 
 View16x2Start::View16x2Start()
@@ -22,8 +22,12 @@ void View16x2Start::update()
 
     write_text_on_screen("BAT:",
                         1,9,ViewBase::JUSTIFY_RIGHT);
-    write_text_on_screen(model->get_entry_object<std::string>(ENTRY_BATTERY_VOLTAGE),
-                        1,10,ViewBase::JUSTIFY_LEFT);
+                        
+    auto bat_val{model->get_entry<BatteryDisplay>(ENTRY_BATTERY_VOLTAGE)};
+    if(bat_val.value_has_been_updated()){
+        write_text_on_screen(bat_val.get_object().to_string(),
+                            1,10,ViewBase::JUSTIFY_LEFT);
+    }
     write_text_on_screen("V",
                         1,14,ViewBase::JUSTIFY_LEFT);
 

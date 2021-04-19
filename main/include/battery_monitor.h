@@ -6,6 +6,7 @@
 #include "esp_adc_cal.h"
 #include "string.h"
 #include <functional>
+#include "battery_display.h"
 
 class Battery
 {
@@ -37,9 +38,9 @@ public:
     void register_callback(battery_callback_t new_callback);
     void measure();
     int get_last_mesurement();
+    BatteryDisplay get_last_mesurement_display() const;
     // std::string get_last_mesurement_as_string();
 };
-
 
 
 #endif

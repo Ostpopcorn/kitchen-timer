@@ -5,10 +5,10 @@ ScreenModelEntry<object_type_t>::ScreenModelEntry(){}
 
 
 template<typename object_type_t>
-ScreenModelEntry<object_type_t>::ScreenModelEntry(object_type_t &&new_data):current_data{new_data}{}
+ScreenModelEntry<object_type_t>::ScreenModelEntry(object_type_t &&new_data):current_data{new_data}, has_changed{true}{}
 
 template<typename object_type_t>
-ScreenModelEntry<object_type_t>::ScreenModelEntry(object_type_t &new_data):current_data{new_data}{}
+ScreenModelEntry<object_type_t>::ScreenModelEntry(object_type_t &new_data):current_data{new_data}, has_changed{true}{}
 
 
 template<typename object_type_t>

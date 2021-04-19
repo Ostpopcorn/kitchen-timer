@@ -4,6 +4,7 @@
 #include <cstring>
 #include <map>
 #include "screen_model_entry_types.h"
+#include "battery_display.h"
 
 
 class Clock_display{
@@ -20,13 +21,6 @@ public:
     }
 };
 
-
-class Battery_display{
-public:
-    bool operator==(const Battery_display rhs) const{
-        return true;
-    }
-};
 
 template<typename object_type_t>
 class ScreenModelEntry{
@@ -79,8 +73,8 @@ private:
     std::map<const model_entry_types_t,ScreenModelEntry<int>> integers{};
     std::map<const model_entry_types_t,ScreenModelEntry<std::string>> strings{};
     std::map<const model_entry_types_t,ScreenModelEntry<Clock_display>> clocks{};
-    std::pair<model_entry_types_t,ScreenModelEntry<Battery_display>> battery{};
-    ScreenModelEntry<Battery_display> dummy_battery{};
+    std::pair<model_entry_types_t,ScreenModelEntry<BatteryDisplay>> battery{};
+    ScreenModelEntry<BatteryDisplay> dummy_battery{};
 
 };
 

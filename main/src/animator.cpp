@@ -64,7 +64,7 @@ void AnimationSpinningWheel::update(){
     } else if (diff >(0*time_per_frame))
     {
         // reset animation condition
-        current_char = '_';
+        current_char = 'v';
     } 
 }
 

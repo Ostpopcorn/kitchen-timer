@@ -37,6 +37,7 @@ void LcdBacklight::set_gpio(gpio_num_t gpio){
     ledc_channel.timer_sel  = ledc_timer.timer_num;
     ledc_channel.duty       = target;
     ledc_channel.hpoint     = 0;
+    ledc_channel.intr_type  = LEDC_INTR_DISABLE;
 
     ledc_channel_config(&ledc_channel);
 

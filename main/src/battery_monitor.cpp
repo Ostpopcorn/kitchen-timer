@@ -149,6 +149,11 @@ int Battery::get_last_mesurement()
     return last_measure;
 }
 
+BatteryDisplay Battery::get_last_mesurement_display() const
+{
+    return BatteryDisplay{last_measure};
+}
+
 void Battery::set_last_mesurement(int new_value){
     // Here the voltage divider is considerated
     last_measure = ((new_value)*voltage_divider_factor);

@@ -77,17 +77,19 @@ void ScreenController::handle_event_timer(TimerContainer* timer)
 }
 void ScreenController::handle_event_battery(Battery* battery)
 {
-    char text[5];
     /*
+    char text[5];
     memcpy(text,battery->get_last_mesurement_as_string().c_str(),5);
-    */
     int val = battery->get_last_mesurement();
     text[0] = '0'+(val/1000)%10;
     text[1] = ':';
     text[2] = '0'+(val/100)%10;
     text[3] = '0'+(val/10)%10;
     text[4] = '\0';
-    model->insert(ENTRY_BATTERY_VOLTAGE,(const char*)text);
+    */
+    
+    model->insert(ENTRY_BATTERY_VOLTAGE,battery->get_last_mesurement_display());
+
 }
 
 void ScreenController::set_button_info(button_info_t* new_info){

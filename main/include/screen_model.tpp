@@ -19,8 +19,7 @@ const object_type_t& ScreenModel<identifier_t>::get_entry_object(const identifie
 
 template<class object_type_t >
 void ScreenModel::insert(model_entry_types_t identifier, object_type_t&& value) {
-    object_type_t a{value};
-    ESP_LOGI("Model","gen insert");
+    ESP_LOGI("Model","gen insert &&");
     exception_throw();
 }
 
