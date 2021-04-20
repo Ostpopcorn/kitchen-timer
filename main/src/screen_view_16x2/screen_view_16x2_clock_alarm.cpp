@@ -15,7 +15,7 @@ View16x2ClockAlarm::~View16x2ClockAlarm()
 {
 }
 
-void View16x2ClockAlarm::update()
+void View16x2ClockAlarm::update(bool redraw)
 {
     write_text_on_screen("A",
                          0,0,ViewBase::JUSTIFY_CENTER);

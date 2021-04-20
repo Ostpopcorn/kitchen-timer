@@ -10,7 +10,7 @@ ViewBase::~ViewBase()
 {
 }
 
-void ViewBase::update()
+void ViewBase::update(bool redraw)
 {
 }
 

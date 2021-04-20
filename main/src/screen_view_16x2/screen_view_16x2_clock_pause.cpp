@@ -15,7 +15,7 @@ View16x2ClockPause::~View16x2ClockPause()
 {
 }
 
-void View16x2ClockPause::update()
+void View16x2ClockPause::update(bool redraw)
 {
     write_text_on_screen("P",
                          0,0,ViewBase::JUSTIFY_CENTER);

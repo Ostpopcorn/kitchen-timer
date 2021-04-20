@@ -40,7 +40,7 @@ protected:
 public:
     View16x2Start();
     virtual ~View16x2Start();
-    virtual void update() override;
+    virtual void update(bool redraw = true) override;
 };
 
 
@@ -51,7 +51,7 @@ protected:
 public:
     View16x2ClockStop();
     virtual ~View16x2ClockStop();
-    virtual void update() override;
+    virtual void update(bool redraw = true) override;
 };
 
 
@@ -62,7 +62,7 @@ protected:
 public:
     View16x2ClockPause();
     virtual ~View16x2ClockPause();
-    virtual void update() override;
+    virtual void update(bool redraw = true) override;
 };
 
 
@@ -73,7 +73,7 @@ protected:
 public:
     View16x2ClockRunning();
     virtual ~View16x2ClockRunning();
-    virtual void update() override;
+    virtual void update(bool redraw = true) override;
 };
 
 class View16x2ClockAlarm : public ViewBase16x2
@@ -83,7 +83,7 @@ protected:
 public:
     View16x2ClockAlarm();
     virtual ~View16x2ClockAlarm();
-    virtual void update() override;
+    virtual void update(bool redraw = true) override;
 };
 
 

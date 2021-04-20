@@ -15,7 +15,7 @@ View16x2ClockStop::~View16x2ClockStop()
 {
 }
 
-void View16x2ClockStop::update()
+void View16x2ClockStop::update(bool redraw)
 {
     write_text_on_screen("S",
                          0,0,ViewBase::JUSTIFY_CENTER);

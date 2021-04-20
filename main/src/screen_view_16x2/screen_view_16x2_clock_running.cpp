@@ -15,7 +15,7 @@ View16x2ClockRunning::~View16x2ClockRunning()
 {
 }
 
-void View16x2ClockRunning::update()
+void View16x2ClockRunning::update(bool redraw)
 {
     write_text_on_screen("R",
                          0,0,ViewBase::JUSTIFY_CENTER);

@@ -19,7 +19,7 @@ public:
     bool has_model();
     ViewBase();
     virtual ~ViewBase();
-    virtual void update();
+    virtual void update(bool redraw = true);
 };
 
 

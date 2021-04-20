@@ -14,17 +14,19 @@ View16x2Start::~View16x2Start()
 {
 }
 
-void View16x2Start::update()
+void View16x2Start::update(bool redraw)
 {
     
-    std::string message = model->get_entry_object<std::string>(ENTRY_STARTUP);
-    write_text_on_screen(message,0,2,ViewBase::JUSTIFY_LEFT);
+    auto start_text = model->get_entry<std::string>(ENTRY_STARTUP);
+    if (redraw || start_text.value_has_been_updated()){
+        write_text_on_screen(start_text.get_object(),0,2,ViewBase::JUSTIFY_LEFT);
+    }
 
     write_text_on_screen("BAT:",
                         1,9,ViewBase::JUSTIFY_RIGHT);
                         
     auto bat_val{model->get_entry<BatteryDisplay>(ENTRY_BATTERY_VOLTAGE)};
-    if(bat_val.value_has_been_updated()){
+    if(redraw || bat_val.value_has_been_updated()){
         write_text_on_screen(bat_val.get_object().to_string(),
                             1,10,ViewBase::JUSTIFY_LEFT);
     }
