@@ -26,8 +26,8 @@ ScreenController::~ScreenController()
 {
 }
 
-void ScreenController::update(){
-    current_view->update();
+void ScreenController::update(bool redraw){
+    current_view->update(redraw);
 }
 void ScreenController::change_view(screen_views_t new_view){
     switch (new_view)
@@ -68,12 +68,12 @@ void ScreenController::change_view(screen_views_t new_view){
     default:
         break;
     }
-    update();
+    update(true);
 }
 void ScreenController::handle_event_timer(TimerContainer* timer)
 {
     model->insert(ENTRY_PRIMARY_TIMER,
-          timer->get_primary_timer()->get_remainder_as_clock().to_string(' ',':'));
+          timer->get_primary_timer()->get_remainder_as_clock());
 }
 void ScreenController::handle_event_battery(Battery* battery)
 {

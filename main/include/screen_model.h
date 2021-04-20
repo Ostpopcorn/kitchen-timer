@@ -5,21 +5,9 @@
 #include <map>
 #include "screen_model_entry_types.h"
 #include "battery_display.h"
+#include "counter_clock.h"
 
 
-class Clock_display{
-
-private:
-    bool show_plus_minus_symbol;
-    int hour;
-    int minute;
-    int second;
-
-public:
-    bool operator==(const Clock_display rhs) const{
-        return true;
-    }
-};
 
 
 template<typename object_type_t>
@@ -72,7 +60,7 @@ private:
 
     std::map<const model_entry_types_t,ScreenModelEntry<int>> integers{};
     std::map<const model_entry_types_t,ScreenModelEntry<std::string>> strings{};
-    std::map<const model_entry_types_t,ScreenModelEntry<Clock_display>> clocks{};
+    std::map<const model_entry_types_t,ScreenModelEntry<CounterClock>> clocks{};
     std::pair<model_entry_types_t,ScreenModelEntry<BatteryDisplay>> battery{};
     ScreenModelEntry<BatteryDisplay> dummy_battery{};
 

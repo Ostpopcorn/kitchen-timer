@@ -29,8 +29,8 @@ public:
     ScreenController();
     virtual ~ScreenController();
     void handleEvent();
-    void change_view(screen_views_t new_view);
-    void update();
+    void change_view(screen_views_t new_view); 
+    void update(bool redraw = false);
     void handle_event_timer(TimerContainer* timer);
     void handle_event_battery(Battery* battery);
     void set_button_info(button_info_t* new_info);

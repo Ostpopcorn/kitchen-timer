@@ -1,7 +1,6 @@
 #include "screen_model.h"
 #include "custom_exception.h"
 #include "esp_log.h"
-#include "battery_monitor.h"
 
 ScreenModel::ScreenModel(){
 
@@ -31,7 +30,7 @@ void ScreenModel::insert(model_entry_types_t identifier, std::string &&value) {
 }
 // CounterClock
 template<>
-void ScreenModel::insert(model_entry_types_t identifier, Clock_display &&value) {
+void ScreenModel::insert(model_entry_types_t identifier, CounterClock &&value) {
     clocks[identifier].set_new(value);
 }
 // Battery_Value
@@ -59,7 +58,7 @@ const ScreenModelEntry<std::string>& ScreenModel::get_entry(model_entry_types_t 
     return strings[identifier];
 }
 template< >
-const ScreenModelEntry<Clock_display>& ScreenModel::get_entry(model_entry_types_t identifier) {
+const ScreenModelEntry<CounterClock>& ScreenModel::get_entry(model_entry_types_t identifier) {
     return clocks[identifier];
 }
 template<>
