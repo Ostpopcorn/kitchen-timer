@@ -17,7 +17,7 @@
 #include "screen_view_16x2/screen_view_16x2.h"
 #include "timer_class.h"
 #include "LiquidCrystalGPIO.h"
-
+#include "buttons_controller.h"
 #include "battery_monitor.h"
 
 #define TAG "MAIN"
@@ -110,6 +110,12 @@ extern "C" void app_main()
     ScreenController* controller = new ScreenController{};
     controller->change_view(ScreenController::CLOCK_WELCOME);
     
+    View16x2Start::button_controller->callback_button_1 = [](button_state_t state){
+        ESP_LOGI("CB","BUTTANSNSNSNS!! %i",state);
+    };
+    View16x2Start::button_controller->callback_button_2 = [controller](button_state_t state){
+        controller->change_view(ScreenController::CLOCK_TIMER_STOP);
+    };
 
     TimerContainer* timer = new TimerContainer{};
     timer->get_primary_timer()->set_alarm_value(122);
@@ -149,7 +155,7 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(button_init(&button_info, btn_gpio_arr));
     ESP_ERROR_CHECK(button_set_queue(&button_info, button_event_queue));
     
-    controller->set_button_info(&button_info);
+    ButtonsController::set_button_info(&button_info);
 
     button_event_t btn_ev = GENERATE_BUTTON_EVENT_T;
     rotary_encoder_event_t rot_ev = GENERAT_ROTARY_ENCODER_EVENT_T;
@@ -333,7 +339,6 @@ extern "C" void app_main()
         } 
         
         controller->handle_event_timer(timer);
-        controller->update_button();
         controller->update();
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }

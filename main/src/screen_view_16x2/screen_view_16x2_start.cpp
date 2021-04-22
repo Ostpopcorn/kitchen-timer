@@ -5,6 +5,9 @@
 #include "battery_monitor.h"
 #define TAG "SVIEW"
 
+
+ButtonsController* View16x2Start::button_controller{new ButtonsController{}};
+
 View16x2Start::View16x2Start()
 {
 }

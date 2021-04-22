@@ -6,7 +6,6 @@
 #include "timer_class.h"
 #include "battery_monitor.h"
 #include "screen_model_entry_types.h"
-#include "button.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 
@@ -33,16 +32,6 @@ public:
     void update(bool redraw = false);
     void handle_event_timer(TimerContainer* timer);
     void handle_event_battery(Battery* battery);
-    void set_button_info(button_info_t* new_info);
-    void update_button();
-private:
-    void callback_button_1(button_event_t);
-    void callback_button_2(button_event_t);
-    void callback_button_3(button_event_t);
-    void callback_button_4(button_event_t);
-    void callback_rot_changed(int);
-
-    button_info_t* button_info;
 };
 
 
