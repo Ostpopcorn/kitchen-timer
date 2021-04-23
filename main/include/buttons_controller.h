@@ -23,13 +23,11 @@ class ButtonsController : public ButtonsControllerBase
 public:
     typedef std::function<void()> button_callback_queue_t;
     typedef std::function<void(button_state_t)> button_callback_t;
-    typedef std::function<void(button_state_t)> rotary_encoder_callback_t;
 
     button_callback_t callback_button_1{};
     button_callback_t callback_button_2{};
     button_callback_t callback_button_3{};
     button_callback_t callback_button_4{};
-    rotary_encoder_callback_t callback_rot_changed{};
 
 private:
     static button_info_t* button_info;

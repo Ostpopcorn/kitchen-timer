@@ -27,6 +27,12 @@ ScreenController::~ScreenController()
 }
 
 void ScreenController::update(bool redraw){
+
+    // First read from rotary encoder and taking action
+    RotaryEncoderController* rot_enc_ctrl{dynamic_cast<RotaryEncoderController*>(current_view->get_rotary_encoder_controller())};
+    if(rot_enc_ctrl){
+        rot_enc_ctrl->update_rotary_encoder();
+    }
     // This should collect all actions from the buttons and store them on a queue
     // Then all actions should be executed
     ButtonsController* btn_ctrl{dynamic_cast<ButtonsController*>(current_view->get_button_controller())};
@@ -95,18 +101,6 @@ void ScreenController::handle_event_timer(TimerContainer* timer)
 }
 void ScreenController::handle_event_battery(Battery* battery)
 {
-    /*
-    char text[5];
-    memcpy(text,battery->get_last_mesurement_as_string().c_str(),5);
-    int val = battery->get_last_mesurement();
-    text[0] = '0'+(val/1000)%10;
-    text[1] = ':';
-    text[2] = '0'+(val/100)%10;
-    text[3] = '0'+(val/10)%10;
-    text[4] = '\0';
-    */
-    
     model->insert(ENTRY_BATTERY_VOLTAGE,battery->get_last_mesurement_display());
-
 }
 

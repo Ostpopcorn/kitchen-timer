@@ -5,6 +5,9 @@
 #include "counter_clock.h"
 
 #define TAG "SVIEW"
+
+RotaryEncoderController* View16x2ClockStop::rotary_encoder_controller{new RotaryEncoderController{}};
+
 View16x2ClockStop::View16x2ClockStop()
 {
     if(has_backlight()){

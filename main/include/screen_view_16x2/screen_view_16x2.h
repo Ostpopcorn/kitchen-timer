@@ -43,7 +43,7 @@ public:
     virtual void update(bool redraw = true) override;
 
     static ButtonsController* button_controller;
-    ButtonsControllerBase* get_button_controller() override {return View16x2Start::button_controller;};
+    ButtonsControllerBase* get_button_controller() override {return button_controller;};
 };
 
 
@@ -55,6 +55,9 @@ public:
     View16x2ClockStop();
     virtual ~View16x2ClockStop();
     virtual void update(bool redraw = true) override;
+    
+    static RotaryEncoderController* rotary_encoder_controller;
+    RotaryEncoderControllerBase* get_rotary_encoder_controller() override {return rotary_encoder_controller;};
 };
 
 

@@ -18,6 +18,7 @@
 #include "timer_class.h"
 #include "LiquidCrystalGPIO.h"
 #include "buttons_controller.h"
+#include "roatry_encoder_controller.h"
 #include "battery_monitor.h"
 
 #define TAG "MAIN"
@@ -83,6 +84,8 @@ extern "C" void app_main()
     ESP_ERROR_CHECK(rotary_encoder_enable_half_steps(&rotary_encoder_info, true));  
     ESP_ERROR_CHECK(rotary_encoder_set_queue(&rotary_encoder_info, rotary_encoder_event_queue));
 
+    RotaryEncoderController::set_rotary_encoder_info(&rotary_encoder_info);
+
     //Sound sound{};    // Need to init this before the buttons in order to have btn_2 work since it uses DAC_2 pin
 
     ESP_LOGI(TAG, "Starting screen");
@@ -110,6 +113,9 @@ extern "C" void app_main()
     ScreenController* controller = new ScreenController{};
     controller->change_view(ScreenController::CLOCK_WELCOME);
     
+    TimerContainer* timer = new TimerContainer{};
+    timer->get_primary_timer()->set_alarm_value(122);
+    
     View16x2Start::button_controller->callback_button_1 = [](button_state_t state){
         ESP_LOGI("CB","BUTTANSNSNSNS!! %i",state);
     };
@@ -117,8 +123,10 @@ extern "C" void app_main()
         controller->change_view(ScreenController::CLOCK_TIMER_STOP);
     };
 
-    TimerContainer* timer = new TimerContainer{};
-    timer->get_primary_timer()->set_alarm_value(122);
+    View16x2ClockStop::rotary_encoder_controller->callback_rot_changed = [timer](int amount){
+        timer->get_primary_timer()->change_alarm_value(amount);
+        ESP_LOGI("CB","ROTOTOT!! %i",amount);
+    };
     /*
     */
     timer->register_callback((TimerContainer::timer_id_t) 1,TimerContainer::EVENT_TYPE_START,[](TimerContainer::timer_event_t const timer_event)
@@ -173,171 +181,6 @@ extern "C" void app_main()
 
     while (1)
     {
-        /*
-        while (xQueueReceive(button_event_queue, &(btn_ev),1) == pdPASS){
-            if (btn_ev.pin == btn_1)
-            {
-                // lcd.setCursor(1, 1);
-                if (btn_ev.event == BUTTON_RISING_EDGE){
-                    ESP_LOGI(TAG, "btn_1 rising edge");
-                    // lcd.write('R');
-                    //screen.change_view(ScreenBase::screen_views::CLOCK_SHOW_TIMER);
-                    timer->get_primary_timer()->pause();
-                }
-                else if (btn_ev.event == BUTTON_FALLING_EDGE){
-                    ESP_LOGI(TAG, "btn_1 short press falling edge");
-                    // lcd.write('F');
-                }
-                else if (btn_ev.event == BUTTON_LONG_PRESS){
-                    ESP_LOGI(TAG, "btn_1 long press");
-                    // lcd.write('L');
-                }
-                else if (btn_ev.event == BUTTON_FALLING_EDGE_LONG){
-                    ESP_LOGI(TAG, "btn_1 long press falling edge");
-                    // lcd.write('X');
-                }
-            }
-            else if ((btn_ev.pin == btn_2) )
-            {
-                // lcd.setCursor(2, 1);
-                if (btn_ev.event == BUTTON_RISING_EDGE){
-                    ESP_LOGI(TAG, "btn_2 rising edge");
-                    timer->get_primary_timer()->start();
-                    // lcd.write('R');
-                }
-                else if (btn_ev.event == BUTTON_FALLING_EDGE){
-                    ESP_LOGI(TAG, "btn_2 short press falling edge");
-                    // lcd.write('F');
-                }
-                else if (btn_ev.event == BUTTON_LONG_PRESS){
-                    ESP_LOGI(TAG, "btn_2 long press");
-                    // lcd.write('L');
-                }
-                else if (btn_ev.event == BUTTON_FALLING_EDGE_LONG){
-                    ESP_LOGI(TAG, "btn_2 long press falling edge");
-                    // lcd.write('X');
-                }
-            }
-            else if ((btn_ev.pin == btn_3) )
-            {
-                // lcd.setCursor(3, 1);
-                if (btn_ev.event == BUTTON_RISING_EDGE){
-                    ESP_LOGI(TAG, "btn_3 rising edge");
-                    
-                    // lcd.write('R');
-                }
-                else if (btn_ev.event == BUTTON_FALLING_EDGE){
-                    ESP_LOGI(TAG, "btn_3 short press falling edge");
-                    // lcd.write('F');
-                }
-                else if (btn_ev.event == BUTTON_LONG_PRESS){
-                    ESP_LOGI(TAG, "btn_3 long press");
-                    // lcd.write('L');
-                }
-                else if (btn_ev.event == BUTTON_FALLING_EDGE_LONG){
-                    ESP_LOGI(TAG, "btn_3 long press falling edge");
-                    // lcd.write('X');
-                }
-            }
-            else if ((btn_ev.pin == rot_enc_btn_gpio) )
-            {
-                // lcd.setCursor(4, 1);
-                if (btn_ev.event == BUTTON_RISING_EDGE){
-                    ESP_LOGI(TAG, "rot_enc_btn_gpio rising edge");
-                    controller->change_view(ScreenController::CLOCK_TIMER_STOP);
-                    // lcd.write('R');
-                }
-                else if (btn_ev.event == BUTTON_FALLING_EDGE){
-                    ESP_LOGI(TAG, "rot_enc_btn_gpio short press falling edge");
-                    // lcd.write('F');
-                }
-                else if (btn_ev.event == BUTTON_LONG_PRESS){
-                    ESP_LOGI(TAG, "rot_enc_btn_gpio long press");
-                    // lcd.write('L');
-                }
-                else if (btn_ev.event == BUTTON_FALLING_EDGE_LONG){
-                    ESP_LOGI(TAG, "rot_enc_btn_gpio long press falling edge");
-                    // lcd.write('X');
-                }
-            }
-        }
-        */
-        
-        while (xQueueReceive(rotary_encoder_event_queue, &rot_ev,1) == pdPASS){
-            //ESP_LOGI(TAG,"%i",rot_ev.state.position);
-            // Make sure there is more than 10 ms between the different events to make 
-            // have deacent precision
-
-            for (size_t i = 0; i < mem_len-1; i++)
-            {
-                prev_rot_enc_pos[mem_len-1-i] = prev_rot_enc_pos[mem_len-1-i-1];
-                prev_rot_enc_time[mem_len-1-i]  = prev_rot_enc_time[mem_len-1-i-1]; 
-            }
-
-            int64_t curr_micros{esp_timer_get_time()};
-            // When there has not been an update in a while we might as well reset the counter of the rotary encoder
-            // to make sure it never leaves its bounds.
-            int64_t rot_enc_reset_time{10000000};
-            // How long it will keep history
-            int64_t history_time_length{500000};
-
-            // Rot enc reset condition, too long has passed between the last two events.
-            if ((curr_micros-prev_rot_enc_time[0])>(rot_enc_reset_time)){
-                printf("rot reset,%llu",(curr_micros-prev_rot_enc_time[0]));
-                rotary_encoder_reset(&rotary_encoder_info);
-                prev_rot_enc_pos[0]   = 0;
-            }else{
-
-                prev_rot_enc_pos[0]   = rot_ev.state.position;
-            }
-            prev_rot_enc_time[0]  = curr_micros;
-            
-            
-            int len_of_vec_to_use{0};
-            for (size_t i = 0; i < mem_len-1; i++)
-            {
-                // Set one to zero for samples older than 1 sec
-                if ( (prev_rot_enc_time[0] - prev_rot_enc_time[i]) > history_time_length ){
-                    // prev_rot_enc_time[i] = 0;
-                    len_of_vec_to_use = i;
-                    printf("con len is: %i ",i);
-                    break;
-                }
-                
-            }
-            
-            
-            // Now the previous vector is updated and it can be evaluated
-            double conv{0};
-            int rot_enc_change{prev_rot_enc_pos[0]-prev_rot_enc_pos[len_of_vec_to_use-1]};
-            int rot_enc_change_abs{rot_enc_change*( (int) ((rot_enc_change>=0)?1:-1) )};
-            // ESP_LOGI("a","%i %i %i",prev_rot_enc_pos[0],prev_rot_enc_pos[1],prev_rot_enc_pos[2]);
-            if (len_of_vec_to_use == 0){
-                printf("ERROR");
-            } else if (len_of_vec_to_use == 1){
-                if (prev_rot_enc_pos[0]>0){
-                    conv = 1;
-                }else{
-                    conv = -1;
-                }
-            } else {
-                // First set the amout to scroll by
-                if (rot_enc_change_abs>=25){
-                    conv = 15;
-                } else if (rot_enc_change_abs>=15){
-                    conv = 5;
-                }else{
-                    conv = 1;
-                }
-                // Then correct its sign
-                conv *= ( (double) ((rot_enc_change>=0)?1:-1) );
-            }
-            printf("change %i, conv %f\n",rot_enc_change,conv);
-
-            timer->get_primary_timer()->change_alarm_value(conv);
-        
-        } 
-        
         controller->handle_event_timer(timer);
         controller->update();
         vTaskDelay(100 / portTICK_PERIOD_MS);

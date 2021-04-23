@@ -4,6 +4,7 @@
 #include "screen_model.h"
 #include "screen_model_entry_types.h"
 #include "buttons_controller.h"
+#include "roatry_encoder_controller.h"
 
 class ViewBase
 {
@@ -17,6 +18,7 @@ protected:
     static ScreenModel* model;
 public:
     virtual ButtonsControllerBase* get_button_controller(){return nullptr;};
+    virtual RotaryEncoderControllerBase* get_rotary_encoder_controller(){return nullptr;};
     static void assing_model(ScreenModel* new_model);
     bool has_model();
     ViewBase();
