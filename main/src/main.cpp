@@ -66,24 +66,36 @@ extern "C" void app_main()
         .intr_type = GPIO_INTR_DISABLE,
     };
     gpio_config(&io_conf);
+
+    // Always start with 5V enabeld to ensure screen is on.
     gpio_set_level(enable_5V_pin, 1);
-    //gpio_set_level(lcd_dimmer, 1);
-    // gpio_set_level(battery_monitor_enable_pin, 1);
     
     // Create the queues for handling events
     QueueHandle_t button_event_queue = button_create_queue();
     QueueHandle_t rotary_encoder_event_queue = rotary_encoder_create_queue();
-    
+
+     // Button & rotary encoder setup init 
+    gpio_num_t btn_1 = GPIO_NUM_27;
+    gpio_num_t btn_2 = GPIO_NUM_26;
+    gpio_num_t btn_3 = GPIO_NUM_36;
+    gpio_num_t rot_enc_btn_gpio = GPIO_NUM_35;
     gpio_num_t rot_enc_a_gpio = GPIO_NUM_39;
     gpio_num_t rot_enc_b_gpio = GPIO_NUM_34;
-    gpio_num_t rot_enc_btn_gpio = GPIO_NUM_35;
 
+    button_info_t button_info = GENERATE_BUTTON_INFO_T;
+    gpio_num_t btn_gpio_arr[5] = {btn_1, btn_2,btn_3,rot_enc_btn_gpio, GPIO_NUM_NC};
+    ESP_ERROR_CHECK(button_init(&button_info, btn_gpio_arr));
+    ESP_ERROR_CHECK(button_set_queue(&button_info, button_event_queue));
+    
+    
     // Rotary encoder init and set to half steps.
     rotary_encoder_info_t rotary_encoder_info = GENERATE_ROTARY_ENCODER_INFO_T;
     rotary_encoder_init(&rotary_encoder_info, rot_enc_b_gpio, rot_enc_a_gpio);
     ESP_ERROR_CHECK(rotary_encoder_enable_half_steps(&rotary_encoder_info, true));  
     ESP_ERROR_CHECK(rotary_encoder_set_queue(&rotary_encoder_info, rotary_encoder_event_queue));
 
+    // Pass info objects to controllers
+    ButtonsController::set_button_info(&button_info);
     RotaryEncoderController::set_rotary_encoder_info(&rotary_encoder_info);
 
     //Sound sound{};    // Need to init this before the buttons in order to have btn_2 work since it uses DAC_2 pin
@@ -110,6 +122,7 @@ extern "C" void app_main()
     backlight->fade_to(0xff);
     ViewBase16x2::assignBacklight(backlight);
 
+    // Screen controller start and callbacks assignment.
     ScreenController* controller = new ScreenController{};
     controller->change_view(ScreenController::CLOCK_WELCOME);
     
@@ -127,8 +140,7 @@ extern "C" void app_main()
         timer->get_primary_timer()->change_alarm_value(amount);
         ESP_LOGI("CB","ROTOTOT!! %i",amount);
     };
-    /*
-    */
+    
     timer->register_callback((TimerContainer::timer_id_t) 1,TimerContainer::EVENT_TYPE_START,[](TimerContainer::timer_event_t const timer_event)
     {
         ESP_LOGI("CB","Callback timer start. name: %s",(*timer_event.timer_info).get_name().c_str());
@@ -152,28 +164,7 @@ extern "C" void app_main()
     //    controller->handle_event_battery(battery);
     //});
 
-    // Button init 
-    gpio_num_t btn_1 = GPIO_NUM_27;
-    gpio_num_t btn_2 = GPIO_NUM_26;
-    gpio_num_t btn_3 = GPIO_NUM_36;
-
-    ESP_LOGI(TAG, "Start button");
-    button_info_t button_info = GENERATE_BUTTON_INFO_T;
-    gpio_num_t btn_gpio_arr[5] = {btn_1, btn_2,btn_3,rot_enc_btn_gpio, GPIO_NUM_NC};
-    ESP_ERROR_CHECK(button_init(&button_info, btn_gpio_arr));
-    ESP_ERROR_CHECK(button_set_queue(&button_info, button_event_queue));
-    
-    ButtonsController::set_button_info(&button_info);
-
-    button_event_t btn_ev = GENERATE_BUTTON_EVENT_T;
-    rotary_encoder_event_t rot_ev = GENERAT_ROTARY_ENCODER_EVENT_T;
-    // timer_event_t timer_event = GENERAT_TIMER_EVENT_T;
-    // xQueueHandle timer_queue = timer.get_queue_handle();
-
-    int32_t mem_len = 32;
-    int32_t prev_rot_enc_pos[mem_len];
-    uint64_t prev_rot_enc_time[mem_len];
-    prev_rot_enc_time[0] = 0;
+   
 
     ESP_LOGI(TAG,"Setup done!");
 
