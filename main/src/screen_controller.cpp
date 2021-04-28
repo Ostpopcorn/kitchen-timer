@@ -32,6 +32,13 @@ void ScreenController::update(bool redraw){
     RotaryEncoderController* rot_enc_ctrl{dynamic_cast<RotaryEncoderController*>(current_view->get_rotary_encoder_controller())};
     if(rot_enc_ctrl){
         rot_enc_ctrl->update_rotary_encoder();
+        auto& queue = rot_enc_ctrl->get_rotary_encoder_queue();
+        while (!queue.empty())
+        {
+            auto& a = queue.front();
+            (*a.first)(a.second);
+            queue.pop();
+        }
     }
     // This should collect all actions from the buttons and store them on a queue
     // Then all actions should be executed
@@ -43,7 +50,7 @@ void ScreenController::update(bool redraw){
         while (!queue.empty())
         {
             auto& a = queue.front();
-            a();
+            (*a.first)(a.second);
             queue.pop();
         }
         

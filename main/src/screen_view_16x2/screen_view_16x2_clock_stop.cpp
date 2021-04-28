@@ -6,6 +6,8 @@
 
 #define TAG "SVIEW"
 
+ButtonsController* View16x2ClockStop::button_controller{new ButtonsController{}};
+
 RotaryEncoderController* View16x2ClockStop::rotary_encoder_controller{new RotaryEncoderController{}};
 
 View16x2ClockStop::View16x2ClockStop()

@@ -100,7 +100,7 @@ void RotaryEncoderController::update_rotary_encoder(){
     }
     // printf("change %i, conv %f\n",rot_enc_change,conv);
     if (conv_sum != 0){   
-        callback_rot_changed(conv_sum);
+        rotary_encoder_queue.push(rotary_encoder_callback_pair_t{&callback_rot_changed,conv_sum});
     }
 }
 

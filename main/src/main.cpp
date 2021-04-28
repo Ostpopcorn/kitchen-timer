@@ -133,14 +133,34 @@ extern "C" void app_main()
         ESP_LOGI("CB","BUTTANSNSNSNS!! %i",state);
     };
     View16x2Start::button_controller->callback_button_2 = [controller](button_state_t state){
-        controller->change_view(ScreenController::CLOCK_TIMER_STOP);
+        switch (state)
+        {
+        case BUTTON_RISING_EDGE:
+            controller->change_view(ScreenController::CLOCK_TIMER_STOP);
+            break;
+        
+        default:
+            break;
+        }
+    };
+
+    View16x2ClockStop::button_controller->callback_button_4 = [controller](button_state_t state){
+        switch (state)
+        {
+        case BUTTON_RISING_EDGE:
+            controller->change_view(ScreenController::CLOCK_WELCOME);
+            break;
+        
+        default:
+            break;
+        }
     };
 
     View16x2ClockStop::rotary_encoder_controller->callback_rot_changed = [timer](int amount){
         timer->get_primary_timer()->change_alarm_value(amount);
-        ESP_LOGI("CB","ROTOTOT!! %i",amount);
+        // ESP_LOGI("CB","ROTOTOT!! %i",amount);
     };
-    
+
     timer->register_callback((TimerContainer::timer_id_t) 1,TimerContainer::EVENT_TYPE_START,[](TimerContainer::timer_event_t const timer_event)
     {
         ESP_LOGI("CB","Callback timer start. name: %s",(*timer_event.timer_info).get_name().c_str());

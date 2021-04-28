@@ -58,6 +58,9 @@ public:
     
     static RotaryEncoderController* rotary_encoder_controller;
     RotaryEncoderControllerBase* get_rotary_encoder_controller() override {return rotary_encoder_controller;};
+    
+    static ButtonsController* button_controller;
+    ButtonsControllerBase* get_button_controller() override {return button_controller;};
 };
 
 

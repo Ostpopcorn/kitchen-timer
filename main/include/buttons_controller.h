@@ -21,8 +21,8 @@ class ButtonsControllerBase{
 class ButtonsController : public ButtonsControllerBase
 {
 public:
-    typedef std::function<void()> button_callback_queue_t;
     typedef std::function<void(button_state_t)> button_callback_t;
+    typedef std::pair<button_callback_t*,button_state_t> button_callback_pair_t;
 
     button_callback_t callback_button_1{};
     button_callback_t callback_button_2{};
@@ -32,10 +32,10 @@ public:
 private:
     static button_info_t* button_info;
 
-    std::queue<button_callback_queue_t> buttons_queue{};
+    std::queue<button_callback_pair_t> buttons_queue{};
 
 public:
-    std::queue<button_callback_queue_t>& get_buttons_queue(){return buttons_queue;};
+    std::queue<button_callback_pair_t>& get_buttons_queue(){return buttons_queue;};
     ButtonsController(/* args */);
     ~ButtonsController();
     static void set_button_info(button_info_t* new_info);
