@@ -22,12 +22,16 @@ View16x2ClockRunning::~View16x2ClockRunning()
 
 void View16x2ClockRunning::update(bool redraw)
 {
+    anim.update();
     write_text_on_screen("R",
                          0,0,ViewBase::JUSTIFY_CENTER);
     // Dela upp i "kör" och "står still" och "alarm"
     auto prmy_clk = model->get_entry<CounterClock>(ENTRY_PRIMARY_TIMER);
-    if (redraw || prmy_clk.value_has_been_updated()) {
-        write_text_on_screen(prmy_clk.get_object().to_string(' ',':'),
+
+
+
+    if (redraw || prmy_clk.value_has_been_updated() || anim.value_has_been_updated()) {
+        write_text_on_screen(prmy_clk.get_object().to_string(' ',anim.get_char()),
                             0,7,ViewBase::JUSTIFY_CENTER);
     }
     write_text_on_screen(model->get_entry_object<std::string>(ENTRY_STOP),

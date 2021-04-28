@@ -41,6 +41,14 @@ void Animator::time_diff_reset(){
     last_timer_time = get_time();
 }
 
+bool Animator::value_has_been_updated(bool reset) const{
+    bool return_bool = has_updated;
+    if (reset){
+        has_updated = false;
+    }
+    return return_bool;
+}
+
 
 void AnimationSpinningWheel::update(){
     int64_t diff = get_time_diff_since_reset();

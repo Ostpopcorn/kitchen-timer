@@ -81,7 +81,7 @@ public:
 class View16x2ClockRunning : public ViewBase16x2
 {
 protected:
-
+    AnimationBlinkTwoChar<':',' '> anim{};
 public:
     View16x2ClockRunning();
     virtual ~View16x2ClockRunning();
