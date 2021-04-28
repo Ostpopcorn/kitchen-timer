@@ -72,6 +72,9 @@ public:
     View16x2ClockPause();
     virtual ~View16x2ClockPause();
     virtual void update(bool redraw = true) override;
+
+    static ButtonsController* button_controller;
+    ButtonsControllerBase* get_button_controller() override {return button_controller;};
 };
 
 
@@ -83,6 +86,9 @@ public:
     View16x2ClockRunning();
     virtual ~View16x2ClockRunning();
     virtual void update(bool redraw = true) override;
+    
+    static ButtonsController* button_controller;
+    ButtonsControllerBase* get_button_controller() override {return button_controller;};
 };
 
 class View16x2ClockAlarm : public ViewBase16x2
@@ -92,6 +98,9 @@ public:
     View16x2ClockAlarm();
     virtual ~View16x2ClockAlarm();
     virtual void update(bool redraw = true) override;
+
+    static ButtonsController* button_controller;
+    ButtonsControllerBase* get_button_controller() override {return button_controller;};
 };
 
 

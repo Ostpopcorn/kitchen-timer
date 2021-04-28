@@ -5,6 +5,10 @@
 #include "counter_clock.h"
 
 #define TAG "SVIEW"
+
+
+ButtonsController* View16x2ClockPause::button_controller{new ButtonsController{}};
+
 View16x2ClockPause::View16x2ClockPause()
 {
     if(has_backlight()){

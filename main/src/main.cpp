@@ -129,6 +129,7 @@ extern "C" void app_main()
     TimerContainer* timer = new TimerContainer{};
     timer->get_primary_timer()->set_alarm_value(122);
     
+    // Welcome screen
     View16x2Start::button_controller->callback_button_1 = [](button_state_t state){
         ESP_LOGI("CB","BUTTANSNSNSNS!! %i",state);
     };
@@ -143,7 +144,19 @@ extern "C" void app_main()
             break;
         }
     };
-
+    // Clock stop
+    View16x2ClockStop::button_controller->callback_button_2 = [controller,timer](button_state_t state){
+        switch (state)
+        {
+        case BUTTON_RISING_EDGE:
+            timer->get_primary_timer()->start();
+            controller->change_view(ScreenController::CLOCK_TIMER_RUNNING);
+            break;
+        
+        default:
+            break;
+        }
+    };
     View16x2ClockStop::button_controller->callback_button_4 = [controller](button_state_t state){
         switch (state)
         {
@@ -158,9 +171,24 @@ extern "C" void app_main()
 
     View16x2ClockStop::rotary_encoder_controller->callback_rot_changed = [timer](int amount){
         timer->get_primary_timer()->change_alarm_value(amount);
-        // ESP_LOGI("CB","ROTOTOT!! %i",amount);
     };
 
+    // Clock running
+    
+    View16x2ClockRunning::button_controller->callback_button_1 = [controller,timer](button_state_t state){
+        switch (state)
+        {
+        case BUTTON_RISING_EDGE:
+            timer->get_primary_timer()->pause();
+            controller->change_view(ScreenController::CLOCK_TIMER_STOP);
+            break;
+        
+        default:
+            break;
+        }
+    };
+
+    // Timer callbacks
     timer->register_callback((TimerContainer::timer_id_t) 1,TimerContainer::EVENT_TYPE_START,[](TimerContainer::timer_event_t const timer_event)
     {
         ESP_LOGI("CB","Callback timer start. name: %s",(*timer_event.timer_info).get_name().c_str());
@@ -172,20 +200,12 @@ extern "C" void app_main()
        
     });
 
+    // Battery callback
     battery_monitor->register_callback([controller](Battery* battery){
         controller->handle_event_battery(battery);
         ESP_LOGI("CB","BATTERY.");
     });
-
-
-    // [captures list, vad den känner till utifrån, &](parametrar in till funktionen){kroppen};
-    
-    //battery_monitor.register_callback([&controller](Battery* battery){
-    //    controller->handle_event_battery(battery);
-    //});
-
-   
-
+  
     ESP_LOGI(TAG,"Setup done!");
 
     battery_monitor->measure();
