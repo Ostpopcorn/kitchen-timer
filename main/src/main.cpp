@@ -8,6 +8,7 @@
 #include "driver/adc.h"
 
 #include <stdbool.h>
+#include <limits>
 
 #include "rotary_encoder.h"
 #include "button.h"
@@ -33,6 +34,7 @@ extern "C" void app_main()
     ESP_LOGI(TAG, "Soon...");
     // vTaskDelay(5000 / portTICK_PERIOD_MS);
     ESP_LOGI(TAG, "Program start...");
+    ESP_LOGI(TAG, "Int lim: %i", std::numeric_limits<int>::max());
     ESP_ERROR_CHECK(gpio_install_isr_service(0));
     
 
@@ -127,7 +129,7 @@ extern "C" void app_main()
     controller->change_view(ScreenController::CLOCK_WELCOME);
     
     TimerContainer* timer = new TimerContainer{};
-    timer->get_primary_timer()->set_alarm_value(122);
+    timer->get_primary_timer()->set_alarm_value((98*3600)+122);
     
     // Welcome screen
     View16x2Start::button_controller->callback_button_1 = [](button_state_t state){

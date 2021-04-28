@@ -33,10 +33,10 @@ public:
     private:
         timer_id_t id{0};
         std::string name{""};
-        int t_start{0};
-        int target_time{0};
+        int64_t t_start{0}; // These are defined as ms in code
+        int64_t target_time{0};
         bool alarm_triggerd{false};
-
+        int64_t get_scaled_time();
     public:
         Timer();
         Timer(timer_id_t);
@@ -51,6 +51,7 @@ public:
         void start();
         void pause();
         void set_alarm_value(double timer_interval_sec);
+        void set_alarm_value_ms(int64_t timer_interval_msec);
         void set_alarm_value(Clock timer_interval_sec);
         double get_remainder_as_double();
         CounterClock get_remainder_as_clock();

@@ -2,7 +2,7 @@
 #include "string.h"
 
 
-#define TIMER_SCALE 1000000 // convert counter value to seconds
+#define TIMER_SCALE 1000 // convert counter value to seconds
 
 
 TimerContainer::TimerContainer()
@@ -33,9 +33,19 @@ std::string TimerContainer::Timer::get_name() const {
     return name;
 }
 
+int64_t TimerContainer::Timer::get_scaled_time()
+{
+    return esp_timer_get_time()/1000;
+}
+
 void TimerContainer::Timer::set_alarm_value(double timer_interval_sec)
 {
     target_time = timer_interval_sec * TIMER_SCALE;
+}
+
+void TimerContainer::Timer::set_alarm_value_ms(int64_t timer_interval_msec)
+{
+    target_time = timer_interval_msec;
 }
 
 void TimerContainer::Timer::set_alarm_value(Clock clock)
@@ -45,13 +55,13 @@ void TimerContainer::Timer::set_alarm_value(Clock clock)
 
 void TimerContainer::Timer::change_alarm_value(int seconds){
     
-    target_time += (int64_t) seconds * TIMER_SCALE;
+    target_time +=  seconds * TIMER_SCALE;
 }
 
 void TimerContainer::Timer::start()
 {
     if (!is_running()){
-        t_start = esp_timer_get_time();
+        t_start = get_scaled_time();
         if(callback_timer_start != NULL){
             timer_event_t timer_event{
                 .timer_info = this,
@@ -70,7 +80,7 @@ void TimerContainer::Timer::pause()
 {
     if (is_running())
     {
-        int64_t diff = esp_timer_get_time() - t_start;
+        int64_t diff = get_scaled_time() - t_start;
         target_time -= diff;
         t_start = 0;
         if(callback_timer_stop != NULL){
@@ -89,7 +99,7 @@ void TimerContainer::Timer::check_alarm(){
         return;
     }
 
-    int64_t curr_time{esp_timer_get_time()};
+    int64_t curr_time{get_scaled_time()};
     int64_t diff = t_start + target_time - curr_time;
     if (diff>0){
         // Not tripped yet
@@ -109,7 +119,7 @@ void TimerContainer::Timer::check_alarm(){
 
 double  TimerContainer::Timer::get_remainder_as_double()
 {
-    int64_t curr_time{esp_timer_get_time()};
+    int64_t curr_time{get_scaled_time()};
     if (t_start == 0)
     {
         // Timer is not running
