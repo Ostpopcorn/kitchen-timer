@@ -22,7 +22,8 @@ void LcdBacklight::set_gpio(gpio_num_t gpio){
         .pull_down_en = GPIO_PULLDOWN_DISABLE,
         .intr_type = GPIO_INTR_DISABLE,
     };
-
+    gpio_config(&io_conf);
+    
     ledc_timer.speed_mode = LEDC_LOW_SPEED_MODE;           // timer mode
     ledc_timer.duty_resolution = LEDC_TIMER_8_BIT; // resolution of PWM duty
     ledc_timer.timer_num = LEDC_TIMER_1;            // timer index

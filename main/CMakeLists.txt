@@ -6,3 +6,5 @@ FILE(GLOB_RECURSE app_sources ${CMAKE_SOURCE_DIR}/main/src/*.cpp)
 idf_component_register(SRCS ${app_sources}
                        INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/main/include/ ${CMAKE_SOURCE_DIR}/main/include/screen_view_16x2
                        )
+
+component_compile_options(-std=gnu++17)
