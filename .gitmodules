@@ -13,3 +13,6 @@
 [submodule "components/clock_object"]
 	path = components/clock_object
 	url = git@github.com:Ostpopcorn/clock_object.git
+[submodule "components/SimpleDataModel"]
+	path = components/SimpleDataModel
+	url = git@github.com:Ostpopcorn/SimpleDataModel.git
