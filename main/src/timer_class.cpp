@@ -33,6 +33,10 @@ std::string TimerContainer::Timer::get_name() const {
     return name;
 }
 
+TimerContainer::Timer::timer_state_t TimerContainer::Timer::get_state() const{
+    return current_state;
+}
+
 int64_t TimerContainer::Timer::get_scaled_time()
 {
     return esp_timer_get_time()/1000;
@@ -40,28 +44,33 @@ int64_t TimerContainer::Timer::get_scaled_time()
 
 void TimerContainer::Timer::set_alarm_value(double timer_interval_sec)
 {
-    target_time = timer_interval_sec * TIMER_SCALE;
+    total_target_time = timer_interval_sec * TIMER_SCALE;
+    remaining_target_time = total_target_time;
 }
 
 void TimerContainer::Timer::set_alarm_value_ms(int64_t timer_interval_msec)
 {
-    target_time = timer_interval_msec;
+    total_target_time = timer_interval_msec;
+    remaining_target_time = total_target_time;
 }
 
 void TimerContainer::Timer::set_alarm_value(Clock clock)
 {
-    target_time = clock.get_all_time_as_second() * TIMER_SCALE;
+    total_target_time = clock.get_all_time_as_second() * TIMER_SCALE;
+    remaining_target_time = total_target_time;
 }
 
 void TimerContainer::Timer::change_alarm_value(int seconds){
-    
-    target_time +=  seconds * TIMER_SCALE;
+    int s = seconds * TIMER_SCALE;
+    total_target_time +=  s;
+    remaining_target_time +=  s;
 }
 
 void TimerContainer::Timer::start()
 {
     if (!is_running()){
         t_start = get_scaled_time();
+        current_state = STATE_DOWNCOUNTING;
         if(callback_timer_start != NULL){
             timer_event_t timer_event{
                 .timer_info = this,
@@ -74,16 +83,38 @@ void TimerContainer::Timer::start()
 
 bool TimerContainer::Timer::is_running()
 {
-    return t_start != 0;
-}
-void TimerContainer::Timer::pause()
-{
-    if (is_running())
+    switch (current_state)
     {
-        int64_t diff = get_scaled_time() - t_start;
-        target_time -= diff;
-        t_start = 0;
-        if(callback_timer_stop != NULL){
+    case STATE_DOWNCOUNTING:
+    case STATE_UPCOUNTING:
+    case STATE_ALARM_TRIGGERD:
+        return true;
+    
+    default:
+        return false;
+    }
+}
+void TimerContainer::Timer::stop()
+{
+    if (!is_running())
+    {
+        return;
+    }
+    int64_t diff = get_scaled_time() - t_start;
+    remaining_target_time -= diff;
+    t_start = 0;
+    if (current_state == STATE_ALARM_TRIGGERD){
+        // Reset remaing time to the entered time
+        remaining_target_time = total_target_time;
+        if(callback_timer_alarm_off){
+            timer_event_t timer_event{
+                .timer_info = this,
+                .event_type = EVENT_TYPE_ALARM_OFF
+            };
+            callback_timer_alarm_off(timer_event);
+        }
+    }else{
+        if(callback_timer_stop){
             timer_event_t timer_event{
                 .timer_info = this,
                 .event_type = EVENT_TYPE_STOP
@@ -91,42 +122,68 @@ void TimerContainer::Timer::pause()
             callback_timer_stop(timer_event);
         }
     }
+    current_state = STATE_STOP;
+}
+void TimerContainer::Timer::reset()
+{
+    remaining_target_time = total_target_time;
+    t_start = 0;
+    if (current_state == STATE_ALARM_TRIGGERD){
+        // Reset remaing time to the entered time
+        if(callback_timer_alarm_off){
+            timer_event_t timer_event{
+                .timer_info = this,
+                .event_type = EVENT_TYPE_ALARM_OFF
+            };
+            callback_timer_alarm_off(timer_event);
+        }
+    }
+
+    if(callback_timer_reset){
+        timer_event_t timer_event{
+            .timer_info = this,
+            .event_type = EVENT_TYPE_RESET
+        };
+        callback_timer_reset(timer_event);
+    }
+    current_state = STATE_STOP;
 }
 
 void TimerContainer::Timer::check_alarm(){
-    if (alarm_triggerd == true){
-        // Already tripped 
+    // Already tripped or stopped
+    if (current_state == STATE_ALARM_TRIGGERD||
+        current_state == STATE_STOP){
         return;
     }
 
     int64_t curr_time{get_scaled_time()};
-    int64_t diff = t_start + target_time - curr_time;
-    if (diff>0){
-        // Not tripped yet
-    }
-    else
+    int64_t diff = t_start + remaining_target_time - curr_time;
+    // Should trip if time remaining is negative
+    if (diff<=0)
     {
-        alarm_triggerd = true;
-        timer_event_t timer_event{
-            .timer_info = this,
-            .event_type = EVENT_TYPE_ALARM
-        };
-        callback_timer_alarm(timer_event);
-        return;
+        current_state = STATE_ALARM_TRIGGERD;
+        if(callback_timer_alarm_triggerd != NULL){
+            timer_event_t timer_event{
+                .timer_info = this,
+                .event_type = EVENT_TYPE_ALARM_TRIGGERD
+            };
+            callback_timer_alarm_triggerd(timer_event);
+        }
     }
+    return;
 }
 
 
 double  TimerContainer::Timer::get_remainder_as_double()
 {
     int64_t curr_time{get_scaled_time()};
-    if (t_start == 0)
+    if (is_running())
     {
-        // Timer is not running
-        return ( (double) target_time) /TIMER_SCALE;
-    }else{
         // Timer is running
-        return ((double)(t_start + target_time - curr_time))/TIMER_SCALE;
+        return ((double)(t_start + remaining_target_time - curr_time))/TIMER_SCALE;
+    }else{
+        // Timer is not running
+        return ( (double) remaining_target_time) /TIMER_SCALE;
     }
     
 }
@@ -149,7 +206,10 @@ TimerContainer::Timer* TimerContainer::get_primary_timer(){
 void TimerContainer::update(){
     for (timer_id_t i = 0; i < max_timers; i++)
     {
-        get_timer(i)->check_alarm();
+        auto * t = get_timer(i);
+        if(t){
+            t->check_alarm();
+        }
     }
     
 }
@@ -167,8 +227,11 @@ void TimerContainer::register_callback(timer_id_t timer_id, timer_event_type_t e
     case EVENT_TYPE_STOP:
         current_timer->callback_timer_stop = new_callback;
         break;
-    case EVENT_TYPE_ALARM:
-        current_timer->callback_timer_alarm = new_callback;
+    case EVENT_TYPE_ALARM_TRIGGERD:
+        current_timer->callback_timer_alarm_triggerd = new_callback;
+        break;
+    case EVENT_TYPE_ALARM_OFF:
+        current_timer->callback_timer_alarm_off = new_callback;
         break;
     case EVENT_TYPE_RESET:
         current_timer->callback_timer_reset = new_callback;

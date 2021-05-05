@@ -128,7 +128,7 @@ extern "C" void app_main()
     controller->change_view(ScreenController::CLOCK_WELCOME);
     
     TimerContainer* timer = new TimerContainer{};
-    timer->get_primary_timer()->set_alarm_value((98*3600)+122);
+    timer->get_primary_timer()->set_alarm_value(62);
     
     // Welcome screen
     View16x2Start::button_controller->callback_button_1 = [](button_state_t state){
@@ -158,6 +158,19 @@ extern "C" void app_main()
             break;
         }
     };
+    // Clock stop
+    View16x2ClockStop::button_controller->callback_button_1 = [controller,timer](button_state_t state){
+        switch (state)
+        {
+        case BUTTON_RISING_EDGE:
+            timer->get_primary_timer()->reset();
+            break;
+        
+        default:
+            break;
+        }
+    };
+
     View16x2ClockStop::button_controller->callback_button_4 = [controller](button_state_t state){
         switch (state)
         {
@@ -180,7 +193,7 @@ extern "C" void app_main()
         switch (state)
         {
         case BUTTON_RISING_EDGE:
-            timer->get_primary_timer()->pause();
+            timer->get_primary_timer()->stop();
             controller->change_view(ScreenController::CLOCK_TIMER_STOP);
             break;
         
@@ -200,6 +213,21 @@ extern "C" void app_main()
         ESP_LOGI("CB","Callback timer stop. name: %s",(*timer_event.timer_info).get_name().c_str());
        
     });
+    timer->register_callback((TimerContainer::timer_id_t) 1,TimerContainer::EVENT_TYPE_ALARM_OFF,[](TimerContainer::timer_event_t const timer_event)
+    {
+        ESP_LOGI("CB","Callback timer alarm off. name: %s",(*timer_event.timer_info).get_name().c_str());
+       
+    });
+    timer->register_callback((TimerContainer::timer_id_t) 1,TimerContainer::EVENT_TYPE_ALARM_TRIGGERD,[](TimerContainer::timer_event_t const timer_event)
+    {
+        ESP_LOGI("CB","Callback timer alarm trigger. name: %s",(*timer_event.timer_info).get_name().c_str());
+       
+    });
+    timer->register_callback((TimerContainer::timer_id_t) 1,TimerContainer::EVENT_TYPE_RESET,[](TimerContainer::timer_event_t const timer_event)
+    {
+        ESP_LOGI("CB","Callback timer reset. name: %s",(*timer_event.timer_info).get_name().c_str());
+       
+    });
 
     // Battery callback
     battery_monitor->register_callback([controller](Battery* battery){
@@ -213,7 +241,8 @@ extern "C" void app_main()
 
     while (1)
     {
-        controller->handle_event_timer(timer);
+        timer->update();
+        controller->handle_event_timer(timer); // SHould be named update clocks or something like that
         controller->update();
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
