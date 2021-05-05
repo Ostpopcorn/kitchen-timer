@@ -13,7 +13,6 @@
 #include "rotary_encoder.h"
 #include "button.h"
 #include "Sound.h"
-#include "screen_model.h"
 #include "screen_controller.h"
 #include "screen_view_16x2/screen_view_16x2.h"
 #include "timer_class.h"

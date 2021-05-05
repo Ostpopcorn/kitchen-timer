@@ -1,8 +1,7 @@
 #ifndef TIMER_SCREEN_VIEW_H
 #define TIMER_SCREEN_VIEW_H
 
-#include "screen_model.h"
-#include "screen_model_entry_types.h"
+#include "screen_definitions.h"
 #include "buttons_controller.h"
 #include "roatry_encoder_controller.h"
 
@@ -15,11 +14,11 @@ protected:
         JUSTIFY_CENTER,
         JUSTIFY_RIGHT
     } justify_t;
-    static ScreenModel* model;
+    static DataModelType* model;
 public:
     virtual ButtonsControllerBase* get_button_controller(){return nullptr;};
     virtual RotaryEncoderControllerBase* get_rotary_encoder_controller(){return nullptr;};
-    static void assing_model(ScreenModel* new_model);
+    static void assing_model(DataModelType* new_model);
     bool has_model();
     ViewBase();
     virtual ~ViewBase();

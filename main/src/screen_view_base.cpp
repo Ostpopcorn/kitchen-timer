@@ -1,6 +1,7 @@
 #include "screen_view.h"
+#include "screen_definitions.h"
 
-ScreenModel* ViewBase::model{};
+DataModelType* ViewBase::model{};
 
 ViewBase::ViewBase() 
 {
@@ -14,7 +15,7 @@ void ViewBase::update(bool redraw)
 {
 }
 
-void ViewBase::assing_model(ScreenModel* new_model){
+void ViewBase::assing_model(DataModelType* new_model){
     ViewBase::model = new_model;
 }
 

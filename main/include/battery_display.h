@@ -14,6 +14,9 @@ public:
     bool operator==(const BatteryDisplay rhs){
         return measurement == rhs.get_measurement();
     }
+    bool operator!=(const BatteryDisplay rhs){
+        return !(*this == rhs);
+    }
     int get_measurement() const;
 private:
     int measurement{0};

@@ -1,13 +1,13 @@
 #ifndef TIMER_SCREEN_CONTROLLER_H
 #define TIMER_SCREEN_CONTROLLER_H
 
-#include "screen_model.h"
 #include "screen_view.h"
 #include "timer_class.h"
 #include "battery_monitor.h"
-#include "screen_model_entry_types.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
+
+#include "screen_definitions.h"
 
 class ScreenController
 {
@@ -21,7 +21,7 @@ public:
         CLOCK_TIMER_PAUSE,
     } screen_views_t;
 private:
-    ScreenModel* model{NULL};
+    DataModelType* model{NULL};
     ViewBase* current_view{NULL};
     
 public:

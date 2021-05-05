@@ -3,23 +3,24 @@
 #include "screen_view_16x2.h"
 #include "esp_timer.h"
 #include "animator.h"
-
+#include <string>
+#include "screen_definitions.h"
 
 ScreenController::ScreenController()
 {
-    model= new ScreenModel{};
+    model= new DataModelType{};
     ViewBase16x2::assing_model(model);
-    model->insert(ENTRY_DUMMY_INT, 10);
+    model->set_entry(ENTRY_DUMMY_INT, 10);
     Animator::set_clock_func(esp_timer_get_time);
-    model->insert( ENTRY_YES,"Yes");
-    model->insert( ENTRY_NO,"No");
-    model->insert( ENTRY_START,"Start");
-    model->insert( ENTRY_STOP,"Stop");
-    model->insert( ENTRY_PAUSE,"Pause");
-    model->insert( ENTRY_CONTINUE,"Cont");
-    model->insert( ENTRY_RESET,"Rst");
-    model->insert( ENTRY_STARTUP,CONFIG_SCREEN_STARTUP_MESSAGE);
-    model->insert( ENTRY_BATTERY_VOLTAGE,"-.--");
+    model->set_entry( ENTRY_YES,std::string("Yes"));
+    model->set_entry( ENTRY_NO,std::string("No"));
+    model->set_entry( ENTRY_START,std::string("Start"));
+    model->set_entry( ENTRY_STOP,std::string("Stop"));
+    model->set_entry( ENTRY_PAUSE,std::string("Pause"));
+    model->set_entry( ENTRY_CONTINUE,std::string("Cont"));
+    model->set_entry( ENTRY_RESET,std::string("Rst"));
+    model->set_entry( ENTRY_STARTUP,std::string(CONFIG_SCREEN_STARTUP_MESSAGE));
+    model->set_entry( ENTRY_BATTERY_VOLTAGE,std::string("-.--"));
 }
 
 ScreenController::~ScreenController()
@@ -103,11 +104,11 @@ void ScreenController::change_view(screen_views_t new_view){
 }
 void ScreenController::handle_event_timer(TimerContainer* timer)
 {
-    model->insert(ENTRY_PRIMARY_TIMER,
+    model->set_entry(ENTRY_PRIMARY_TIMER,
           timer->get_primary_timer()->get_remainder_as_clock());
 }
 void ScreenController::handle_event_battery(Battery* battery)
 {
-    model->insert(ENTRY_BATTERY_VOLTAGE,battery->get_last_mesurement_display());
+    model->set_entry(ENTRY_BATTERY_VOLTAGE,battery->get_last_mesurement_display());
 }
 
